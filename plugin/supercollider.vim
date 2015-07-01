@@ -19,6 +19,7 @@ else
 endif
 
 au FileType supercollider execute "set tags+=".s:sclangTagsFile
+au FileType supercollider set omnifunc=supercollidercomplete#CompleteMonths
 
 "  matchit
 au Filetype supercollider let b:match_skip = 's:scComment\|scString\|scSymbol'
@@ -38,9 +39,9 @@ au Filetype supercollider nnoremap <buffer> <F12> :call SClangHardstop()<CR>
 
 au Filetype supercollider nnoremap <leader>sk :SClangRecompile<CR>
 au Filetype supercollider nnoremap <buffer>K :call SChelp(expand('<cword>'))<CR>
-au Filetype supercollider inoremap <C-Tab> :call SCfindArgs()<CR>a
-au Filetype supercollider nnoremap <C-Tab> :call SCfindArgs()<CR>
-au Filetype supercollider vnoremap <C-Tab> :call SCfindArgsFromSelection()<CR>
+" au Filetype supercollider inoremap <C-Tab> :call SCfindArgs()<CR>a
+" au Filetype supercollider nnoremap <C-Tab> :call SCfindArgs()<CR>
+" au Filetype supercollider vnoremap <C-Tab> :call SCfindArgsFromSelection()<CR>
 
 " DEPRECATED
 au Filetype supercollider nnoremap <leader>sd yiw :call SChelp(""")<CR>
