@@ -18,6 +18,8 @@
 // You should have received a copy of the GNU General Public License
 // along with SCVIM.  If not, see <http://www.gnu.org/licenses/>.
 
+
+
 /*
 
 SCVim.generateTagsFile();
@@ -188,7 +190,7 @@ SCVim {
 
 		tagfile.write('!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/'.asString ++ Char.nl);
 		tagfile.write("!_TAG_FILE_SORTED	0	/0=unsorted, 1=sorted, 2=foldcase/" ++ Char.nl);
-		tagfile.write("!_TAG_PROGRAM_AUTHOR	Stephen Lumenta /stephen.lumenta@gmail.com/" ++ Char.nl);
+		tagfile.write("!_TAG_PROGRAM_AUTHOR	Stephen Lumenta (modified by Dionysis Athinaios) /stephen.lumenta@gmail.com/" ++ Char.nl);
 		tagfile.write("!_TAG_PROGRAM_NAME	SCVim.sc//" ++ Char.nl);
 		tagfile.write("!_TAG_PROGRAM_URL	https://github.com/sbl/scvim" ++ Char.nl);
 		tagfile.write("!_TAG_PROGRAM_VERSION	1.0//" ++ Char.nl);
@@ -201,17 +203,31 @@ SCVim {
 			klassFilename     = klass.filenameSymbol;
 			klassSearchString = format("/^%/;\"", klassName);
 
-			tagfile.write(klassName ++ Char.tab ++ klassFilename ++ Char.tab ++ klassSearchString ++ Char.nl);
+      /*
+      //to get class methods I need to use Meta_SinOsc
+      Meta_SinOsc.methods.do{arg i; i.name.postln;i.filenameSymbol.postln;}
+      Meta_SinOsc.findRespondingMethodFor(\ar).argumentString; 
+      //For istance methods just use the normal one
+      Array.findRespondingMethodFor(\sort).argumentString; 
+
+    testin SinOsc.ar(34) * LFDNoise0.ar(
+      
+      exmple of ctag with descriptor
+      Arrive	Classes/SteeringBehaviors.sc	/^Arrive { var entity, <>targetPos, <>deceleration, <>tweak;$/;"	c	language:supercollider
+      AddToWealthWestWorldWithWoman/Miner.cpp/^void Miner::AddToWealth(const int val)$/;" findRespondingMethodForlanguage:C++ class:Miner
+      */
+
+			tagfile.write(klassName ++ Char.tab ++ klassFilename ++ Char.tab ++ klassSearchString ++ Char.tab  ++ "c" ++ Char.tab  ++ "language:supercollider" ++ Char.nl );
 
 			klass.methods.do{|meth|
 				var methName, methFilename, methSearchString;
 				methName     = meth.name;
 				methFilename = meth.filenameSymbol;
 				// this strange fandango dance is necessary for sc to not complain
-				// when compiling 123 is the curly bracket
+				// when compiling. 123 is the curly bracket.
 				methSearchString = format('/% %/;"'.asString, methName, 123.asAscii);
 
-				tagfile.write(methName ++ Char.tab ++ methFilename ++ Char.tab ++ methSearchString ++ Char.nl);
+				tagfile.write(methName ++ Char.tab ++ methFilename ++ Char.tab ++ methSearchString ++ Char.tab  ++ "f" ++ Char.tab  ++ "class:"++ klassName  ++ Char.tab  ++ "language:supercollider" ++ Char.nl );
 			}
 		};
 
