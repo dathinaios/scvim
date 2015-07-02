@@ -1,13 +1,10 @@
 
-" Using a script in the "autoload" directory is simpler, but requires using
-" exactly the right file name.  A function that can be autoloaded has a name
-" like this: >
-" 	:call filename#funcname()
+" This function is called first to find the start of the text to be complete
+" and then to find the actual completion text
 
 fun! supercollidercomplete#CompleteMonths(findstart, base)
   if a:findstart
     " locate the start of the word
-    echom "Heeeere!!!"
     let line = getline('.')
     let start = col('.') - 1
     while start > 0 && line[start - 1] =~ '\a'
@@ -15,15 +12,18 @@ fun! supercollidercomplete#CompleteMonths(findstart, base)
     endwhile
     return start
   else
-    " find months matching with "a:base"
-    let res = []
-    for m in split("January February March April May June July August September October November December")
-      if m =~ '^' . a:base
-  call add(res, m)
-      endif
+    " find words matching with "a:base"
+    let list_with_result_of_taglist = []
+    let matches = taglist("^" . a:base .  "*")
+    for item in matches
+        call add(list_with_result_of_taglist, {'word':item['name'], 'menu': 'here add other info', 'kind': item['kind']})
     endfor
-    return res
+    return list_with_result_of_taglist
   endif
 endfun
 
-echom "There!!!!"
+"insert other info
+" call add(list_with_result_of_taglist, '------------')
+"call add(list_with_result_of_taglist, item['name'])
+" call add(list_with_result_of_taglist, item['name'] . item['kind'])
+" return {'words': list_with_result_of_taglist}
