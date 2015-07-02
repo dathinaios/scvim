@@ -19,7 +19,7 @@ else
 endif
 
 au FileType supercollider execute "set tags+=".s:sclangTagsFile
-au FileType supercollider set omnifunc=supercollidercomplete#CompleteMonths
+au FileType supercollider set omnifunc=supercollidercomplete#Complete
 
 "  matchit
 au Filetype supercollider let b:match_skip = 's:scComment\|scString\|scSymbol'
