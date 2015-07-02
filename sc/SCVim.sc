@@ -195,6 +195,8 @@ SCVim {
 		tagfile.write("!_TAG_PROGRAM_URL	https://github.com/sbl/scvim" ++ Char.nl);
 		tagfile.write("!_TAG_PROGRAM_VERSION	1.0//" ++ Char.nl);
 
+    /* TODO: sort the tag file so hat vim can use binary search that is faster */
+
 		Class.allClasses.do {
 			arg klass;
 			var klassName, klassFilename, klassSearchString;
@@ -204,20 +206,33 @@ SCVim {
 			klassSearchString = format("/^%/;\"", klassName);
 
       /*
+      SuperCollider
+      c  classes
+      m  instance methods
+      M  class methods
+      */
+
+      /*
       //to get class methods I need to use Meta_SinOsc
       Meta_SinOsc.methods.do{arg i; i.name.postln;i.filenameSymbol.postln;}
-      Meta_SinOsc.findRespondingMethodFor(\ar).argumentString; 
+      Meta_SinOsc.findRespondingMethodFor(\ar).argumentString;
       //For istance methods just use the normal one
-      Array.findRespondingMethodFor(\sort).argumentString; 
+      Array.findRespondingMethodFor(\sort).argumentString;
 
-    testin SinOsc.ar(34) * LFDNoise0.ar(
-      
-      exmple of ctag with descriptor
+      "Meta_"++"SinOsc".class.methods
+      SinOsc.AbstractResponderFunc
+      Meta_Array.methods.do{arg i; i.name.postln}
+
+      SinGrain.ar
+
       Arrive	Classes/SteeringBehaviors.sc	/^Arrive { var entity, <>targetPos, <>deceleration, <>tweak;$/;"	c	language:supercollider
       AddToWealthWestWorldWithWoman/Miner.cpp/^void Miner::AddToWealth(const int val)$/;" findRespondingMethodForlanguage:C++ class:Miner
       */
 
 			tagfile.write(klassName ++ Char.tab ++ klassFilename ++ Char.tab ++ klassSearchString ++ Char.tab  ++ "c" ++ Char.tab  ++ "language:supercollider" ++ Char.nl );
+
+
+      //find and add the instance methods with additional info
 
 			klass.methods.do{|meth|
 				var methName, methFilename, methSearchString;
@@ -227,7 +242,20 @@ SCVim {
 				// when compiling. 123 is the curly bracket.
 				methSearchString = format('/% %/;"'.asString, methName, 123.asAscii);
 
-				tagfile.write(methName ++ Char.tab ++ methFilename ++ Char.tab ++ methSearchString ++ Char.tab  ++ "f" ++ Char.tab  ++ "class:"++ klassName  ++ Char.tab  ++ "language:supercollider" ++ Char.nl );
+				tagfile.write(methName ++ Char.tab ++ methFilename ++ Char.tab ++ methSearchString ++ Char.tab  ++ "m" ++ Char.tab  ++ "class:"++ klassName  ++ Char.tab  ++ "language:supercollider" ++ Char.nl );
+			};
+
+			//find and add the class methods
+
+			klass.metaclass.methods.do{|meth|
+				var methName, methFilename, methSearchString;
+				methName     = meth.name;
+				methFilename = meth.filenameSymbol;
+				// this strange fandango dance is necessary for sc to not complain
+				// when compiling. 123 is the curly bracket.
+				methSearchString = format('/% %/;"'.asString, methName, 123.asAscii);
+
+				tagfile.write(methName ++ Char.tab ++ methFilename ++ Char.tab ++ methSearchString ++ Char.tab  ++ "M" ++ Char.tab  ++ "class:"++ klassName  ++ Char.tab  ++ "language:supercollider" ++ Char.nl );
 			}
 		};
 

@@ -4,7 +4,7 @@
 "                       ___) | |___  \ V / | | | | | | |                    "
 "                      |____/ \____|  \_/  |_|_| |_| |_|                    "
 "                                                                           "
-"              _                                 _      _   _               "
+"              _                                  _      _   _              "
 "   __ _ _   _| |_ ___   ___ ___  _ __ ___  _ __ | | ___| |_(_) ___  _ __   "
 "  / _` | | | | __/ _ \ / __/ _ \| '_ ` _ \| '_ \| |/ _ \ __| |/ _ \| '_ \  "
 " | (_| | |_| | || (_) | (_| (_) | | | | | | |_) | |  __/ |_| | (_) | | | | "
@@ -19,23 +19,20 @@
 " This function is called first to find the start of the text to be complete
 " and then to find the actual completion text
 
-fun! supercollidercomplete#CompleteMonths(findstart, base)
+fun! supercollidercomplete#Complete(findstart, base)
   if a:findstart
-    " locate the start of the word
-    let line = getline('.')
-    let start = col('.') - 1
-    while start > 0 && line[start - 1] =~ '\a'
-      let start -= 1
-    endwhile
-    return start
+    return SCCompleteFindStart(getline('.'), col('.'))
   else
     let list_with_result_of_taglist = []
-    let matches = taglist("^" . a:base .  "*")
+    let theStringIsAfteraPeriod = 0
+    let passedWord = a:base
+    let matches = taglist("^" . passedWord .  "*")
     for item in matches
       let kind = item['kind']
-      if kind == "f" "for methods display the class
+      "for method matches display only when there was a dot before the word
+      if ( ( kind == "m" ) ||  ( kind == "M" ) ) && (s:theStringIsAfteraPeriod == 1) "for methods display the class
         call add(list_with_result_of_taglist, {'word':item['name'], 'menu': item['class'], 'kind': kind})
-      else
+      elseif ( kind == "c" ) && ( s:theStringIsAfteraPeriod == 0 )
         call add(list_with_result_of_taglist, {'word':item['name'], 'kind': kind})
       endif
     endfor
@@ -43,8 +40,26 @@ fun! supercollidercomplete#CompleteMonths(findstart, base)
   endif
 endfun
 
-" insert other info
-" call add(list_with_result_of_taglist, '------------')
-" call add(list_with_result_of_taglist, item['name'])
-" call add(list_with_result_of_taglist, item['name'] . item['kind'])
-" return {'words': list_with_result_of_taglist}
+fun! SCCompleteFindStart(line, column)
+    let start = a:column - 1
+    while start > 0 && a:line[start - 1] =~ '\a'
+      let start -= 1
+    endwhile
+    call SCCompleteCheckForPeriodAtStart(a:line, start)
+    return start
+endfun
+
+fun! SCCompleteCheckForPeriodAtStart(line, start)
+  " echom "This is the whole line: " . a:line
+  " echom "This is the start index: " . a:start
+  " echom "This is where we are: " . a:line[a:start - 1]
+  if a:line[a:start - 1] == "\."
+    echom "We have found a period!!"
+    let s:theStringIsAfteraPeriod = 1
+  else
+    echom "We have NOT found a period!!"
+    let s:theStringIsAfteraPeriod = 0
+  endif
+
+endfun
+
