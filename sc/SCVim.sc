@@ -218,9 +218,9 @@ SCVim {
       Array.findRespondingMethodFor(\sort).argumentString;
 
       SinGrain
-      Array.fib
+      Array.fill
       Collection.fill
-      fdfkj.free
+      fdfkj.
       */
 
       superClassesArray = klass.superclasses;
@@ -231,8 +231,8 @@ SCVim {
       lineStringForClasses = lineStringForClasses ++ klassSearchString ++ Char.tab;
       lineStringForClasses = lineStringForClasses ++ "c"  ++ Char.tab;
       lineStringForClasses = lineStringForClasses ++ "class:"++ klassName  ++ Char.tab;
-      lineStringForClasses = lineStringForClasses ++ "superclasses:" ++ superClassesString;
-      lineStringForClasses = lineStringForClasses ++ Char.tab  ++ "language:supercollider" ++ Char.nl;
+      lineStringForClasses = lineStringForClasses ++ "superclasses:" ++ superClassesString ++Char.tab;
+      lineStringForClasses = lineStringForClasses ++ "language:supercollider" ++ Char.nl;
 
 			tagfile.write(lineStringForClasses);
 
@@ -253,8 +253,8 @@ SCVim {
         lineStringForInstanceMethods = lineStringForInstanceMethods ++ methSearchString ++ Char.tab;
         lineStringForInstanceMethods = lineStringForInstanceMethods ++ "m"  ++ Char.tab;
         lineStringForInstanceMethods = lineStringForInstanceMethods ++ "class:"++ klassName  ++ Char.tab;
-        lineStringForInstanceMethods = lineStringForInstanceMethods ++ "superclasses:" ++ superClassesString;
-        lineStringForInstanceMethods = lineStringForInstanceMethods ++ Char.tab  ++ "language:supercollider" ++ Char.nl;
+        lineStringForInstanceMethods = lineStringForInstanceMethods ++ "superclasses:" ++ superClassesString ++ Char.tab;
+        lineStringForInstanceMethods = lineStringForInstanceMethods ++ "language:supercollider" ++ Char.nl;
 
         tagfile.write(lineStringForInstanceMethods);
 			};
@@ -275,8 +275,8 @@ SCVim {
         lineStringForClassMethods = lineStringForClassMethods ++ methSearchString ++ Char.tab;
         lineStringForClassMethods = lineStringForClassMethods ++ "M"  ++ Char.tab;
         lineStringForClassMethods = lineStringForClassMethods ++ "class:"++ klassName  ++ Char.tab;
-        lineStringForClassMethods = lineStringForClassMethods ++ "superclasses:" ++ superClassesString;
-        lineStringForClassMethods = lineStringForClassMethods ++ Char.tab  ++ "language:supercollider" ++ Char.nl;
+        lineStringForClassMethods = lineStringForClassMethods ++ "superclasses:" ++ superClassesString ++ Char.tab;
+        lineStringForClassMethods = lineStringForClassMethods ++ "language:supercollider" ++ Char.nl;
 
       tagfile.write(lineStringForClassMethods);
 			}
