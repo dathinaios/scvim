@@ -199,7 +199,7 @@ SCVim {
 
 		Class.allClasses.do {
 			arg klass;
-			var klassName, klassFilename, klassSearchString;
+			var klassName, klassFilename, klassSearchString, superClassesArray, superClassesString = "";
 
 			klassName         = klass.asString;
 			klassFilename     = klass.filenameSymbol;
@@ -209,7 +209,7 @@ SCVim {
       SuperCollider
       c  classes
       m  instance methods
-      M  class methods
+      x  class methods
       */
 
       /*
@@ -223,14 +223,16 @@ SCVim {
       SinOsc.AbstractResponderFunc
       Meta_Array.methods.do{arg i; i.name.postln}
 
-      SinGrain.ar
+    Array.fill array.findAllReferences
 
       Arrive	Classes/SteeringBehaviors.sc	/^Arrive { var entity, <>targetPos, <>deceleration, <>tweak;$/;"	c	language:supercollider
       AddToWealthWestWorldWithWoman/Miner.cpp/^void Miner::AddToWealth(const int val)$/;" findRespondingMethodForlanguage:C++ class:Miner
       */
 
-			tagfile.write(klassName ++ Char.tab ++ klassFilename ++ Char.tab ++ klassSearchString ++ Char.tab  ++ "c" ++ Char.tab  ++ "language:supercollider" ++ Char.nl );
+			tagfile.write(klassName ++ Char.tab ++ klassFilename ++ Char.tab ++ klassSearchString ++ Char.tab  ++ "c" ++ Char.tab ++ "superclasses:" ++ superClassesString ++ Char.tab  ++ "language:supercollider" ++ Char.nl );
 
+      superClassesArray = klass.superclasses;
+      superClassesArray.do{arg i; superClassesString = superClassesString ++ i.asString ++ ";"};
 
       //find and add the instance methods with additional info
 
@@ -242,7 +244,7 @@ SCVim {
 				// when compiling. 123 is the curly bracket.
 				methSearchString = format('/% %/;"'.asString, methName, 123.asAscii);
 
-				tagfile.write(methName ++ Char.tab ++ methFilename ++ Char.tab ++ methSearchString ++ Char.tab  ++ "m" ++ Char.tab  ++ "class:"++ klassName  ++ Char.tab  ++ "language:supercollider" ++ Char.nl );
+				tagfile.write(methName ++ Char.tab ++ methFilename ++ Char.tab ++ methSearchString ++ Char.tab  ++ "m" ++ Char.tab  ++ "class:"++ klassName  ++ Char.tab  ++ "superclasses:" ++ superClassesString  ++ Char.tab  ++ "language:supercollider" ++ Char.nl );
 			};
 
 			//find and add the class methods
@@ -255,7 +257,7 @@ SCVim {
 				// when compiling. 123 is the curly bracket.
 				methSearchString = format('/% %/;"'.asString, methName, 123.asAscii);
 
-				tagfile.write(methName ++ Char.tab ++ methFilename ++ Char.tab ++ methSearchString ++ Char.tab  ++ "M" ++ Char.tab  ++ "class:"++ klassName  ++ Char.tab  ++ "language:supercollider" ++ Char.nl );
+				tagfile.write(methName ++ Char.tab ++ methFilename ++ Char.tab ++ methSearchString ++ Char.tab  ++ "x" ++ Char.tab  ++ "class:"++ klassName  ++ Char.tab  ++ "superclasses:" ++ superClassesString  ++ Char.tab   ++ "language:supercollider" ++ Char.nl );
 			}
 		};
 

@@ -19,9 +19,11 @@
 " SuperCollider kinds
 " c  classes
 " m  instance methods
-" M  class methods
+" x  class methods
 
-setlocal noignorecase "I need to do that or else the comparison for M with m is not working!!!
+" TODO: This can not be the solution as it set the ignorecase for the user's
+" environment too
+"setlocal noignorecase "I need to do that or else the comparison for M with m is not working!!!
 
 fun! supercollidercomplete#Complete(findstart, base)
   if a:findstart
@@ -62,8 +64,7 @@ fun! SCCompleteCheckForClassMethod(line, start)
   endwhile
 
   let s:wordThatTheMethodIsCalledFrom = a:line[(l:startOfWordBeforeTheOneThatStartedCompletion):(l:startOfWordThatStartedCompletion)]
-
-  if match(a:line[a:start],'\*[A-Z]*') < 0
+  if match(l:startOfWordBeforeTheOneThatStartedCompletion[0],'\*[A-Z]*') < 0
     let s:thePeriodIsAfteraClass = 1
   else
     let s:thePeriodIsAfteraClass = 0
@@ -74,7 +75,9 @@ fun! SCCompleteAddItemsToListAccordingToKind(item, list)
   let l:kind = a:item['kind']
   if s:theStringIsAfteraPeriod
     if s:thePeriodIsAfteraClass
-      if l:kind == "M" "&& (a:item['class'] == s:wordThatTheMethodIsCalledFrom) TODO If I am going to have only the relevant methods I have to also have the ones from the superclasses
+      "TODO filter according to class or superclass. Dont forget that when
+      "daling with class methods we are daling with metaclasses
+      if l:kind == "x" "&& ( ( a:item['class'] == ('Meta_' . s:wordThatTheMethodIsCalledFrom) ) || (match(a:item['superclasses'], ('Meta_' . a:item['class'])) >= 0))        
         call add(a:list, {'word':a:item['name'], 'menu': a:item['class'], 'kind': l:kind})
       endif
     elseif l:kind == "m" "if it i not a class it must be a method call on a variable TODO
