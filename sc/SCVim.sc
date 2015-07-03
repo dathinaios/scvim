@@ -209,7 +209,7 @@ SCVim {
       SuperCollider
       c  classes
       m  instance methods
-      x  class methods
+      M  class methods
       */
 
       /*
@@ -223,13 +223,15 @@ SCVim {
       SinOsc.AbstractResponderFunc
       Meta_Array.methods.do{arg i; i.name.postln}
 
-    Array.fill array.findAllReferences
+      SinOsc.ar
+      Array.fi
+      Collection.fill
 
       Arrive	Classes/SteeringBehaviors.sc	/^Arrive { var entity, <>targetPos, <>deceleration, <>tweak;$/;"	c	language:supercollider
       AddToWealthWestWorldWithWoman/Miner.cpp/^void Miner::AddToWealth(const int val)$/;" findRespondingMethodForlanguage:C++ class:Miner
       */
 
-			tagfile.write(klassName ++ Char.tab ++ klassFilename ++ Char.tab ++ klassSearchString ++ Char.tab  ++ "c" ++ Char.tab ++ "superclasses:" ++ superClassesString ++ Char.tab  ++ "language:supercollider" ++ Char.nl );
+			tagfile.write(klassName ++ Char.tab ++ klassFilename ++ Char.tab ++ klassSearchString ++ Char.tab  ++ "c"  ++ Char.tab  ++ "class:"++ klassName  ++ Char.tab ++ "superclasses:" ++ superClassesString ++ Char.tab  ++ "language:supercollider" ++ Char.nl );
 
       superClassesArray = klass.superclasses;
       superClassesArray.do{arg i; superClassesString = superClassesString ++ i.asString ++ ";"};
@@ -257,7 +259,7 @@ SCVim {
 				// when compiling. 123 is the curly bracket.
 				methSearchString = format('/% %/;"'.asString, methName, 123.asAscii);
 
-				tagfile.write(methName ++ Char.tab ++ methFilename ++ Char.tab ++ methSearchString ++ Char.tab  ++ "x" ++ Char.tab  ++ "class:"++ klassName  ++ Char.tab  ++ "superclasses:" ++ superClassesString  ++ Char.tab   ++ "language:supercollider" ++ Char.nl );
+				tagfile.write(methName ++ Char.tab ++ methFilename ++ Char.tab ++ methSearchString ++ Char.tab  ++ "M" ++ Char.tab  ++ "class:"++ klassName  ++ Char.tab  ++ "superclasses:" ++ superClassesString  ++ Char.tab   ++ "language:supercollider" ++ Char.nl );
 			}
 		};
 

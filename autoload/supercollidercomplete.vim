@@ -19,11 +19,7 @@
 " SuperCollider kinds
 " c  classes
 " m  instance methods
-" x  class methods
-
-" TODO: This can not be the solution as it set the ignorecase for the user's
-" environment too
-"setlocal noignorecase "I need to do that or else the comparison for M with m is not working!!!
+" M  class methods
 
 fun! supercollidercomplete#Complete(findstart, base)
   if a:findstart
@@ -31,8 +27,19 @@ fun! supercollidercomplete#Complete(findstart, base)
   else
     let list_with_result_of_taglist = []
     let matches = taglist("^" . a:base .  "*")
-    for item in matches
-      call SCCompleteAddItemsToListAccordingToKind(item, list_with_result_of_taglist)
+    for item in l:matches
+      " TODO SCCompleteResolveVariables to class
+      call SCCompleteAddItemsToListAccordingToKind(item, list_with_result_of_taglist, s:wordThatTheMethodIsCalledFrom)
+      "also call for the superclasses
+      if item['class'] ==# s:wordThatTheMethodIsCalledFrom
+        let superClassList = split(item['superclasses'], ';')
+        for sclass in superClassList
+          for sclassDictionary in l:matches
+            call SCCompleteAddItemsToListAccordingToKind(sclassDictionary, list_with_result_of_taglist, sclass)
+          endfor
+        endfor
+      endif
+      "-----------------------------
     endfor
     return list_with_result_of_taglist
   endif
@@ -71,19 +78,26 @@ fun! SCCompleteCheckForClassMethod(line, start)
   endif
 endfun
 
-fun! SCCompleteAddItemsToListAccordingToKind(item, list)
+fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
   let l:kind = a:item['kind']
   if s:theStringIsAfteraPeriod
     if s:thePeriodIsAfteraClass
       "TODO filter according to class or superclass. Dont forget that when
       "daling with class methods we are daling with metaclasses
-      if l:kind == "x" "&& ( ( a:item['class'] == ('Meta_' . s:wordThatTheMethodIsCalledFrom) ) || (match(a:item['superclasses'], ('Meta_' . a:item['class'])) >= 0))        
+      
+         " if a:item['class'] ==# 'SinOsc'
+         "   echom "word called onto: " . s:wordThatTheMethodIsCalledFrom
+         "   echom 'Currently checking the class for: ' . a:forClass
+         "   echom a:item['superclasses']
+         " endif
+
+      if l:kind ==# "M" && (a:item['class'] ==# ('Meta_' . a:forClass))
         call add(a:list, {'word':a:item['name'], 'menu': a:item['class'], 'kind': l:kind})
       endif
-    elseif l:kind == "m" "if it i not a class it must be a method call on a variable TODO
+    elseif l:kind ==# "m" "if it i not a class it must be a method call on a variable TODO
       call add(a:list, {'word':a:item['name'], 'menu': a:item['class'], 'kind': l:kind})
     endif
-  elseif ( l:kind == "c" ) && ( s:theStringIsAfteraPeriod == 0 )
+  elseif ( l:kind ==# "c" ) && ( s:theStringIsAfteraPeriod == 0 )
     call add(a:list, {'word':a:item['name'], 'kind': l:kind})
   endif
 endfun
