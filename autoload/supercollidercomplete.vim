@@ -16,25 +16,21 @@
 "                                                This file is part of SCVIM "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-" This function is called first to find the start of the text to be complete
-" and then to find the actual completion text
+" SuperCollider kinds
+" c  classes
+" m  instance methods
+" M  class methods
+
+setlocal noignorecase "I need to do that or else the comparison for M with m is not working!!!
 
 fun! supercollidercomplete#Complete(findstart, base)
   if a:findstart
     return SCCompleteFindStart(getline('.'), col('.'))
   else
     let list_with_result_of_taglist = []
-    let theStringIsAfteraPeriod = 0
-    let passedWord = a:base
-    let matches = taglist("^" . passedWord .  "*")
+    let matches = taglist("^" . a:base .  "*")
     for item in matches
-      let kind = item['kind']
-      "for method matches display only when there was a dot before the word
-      if ( ( kind == "m" ) ||  ( kind == "M" ) ) && (s:theStringIsAfteraPeriod == 1) "for methods display the class
-        call add(list_with_result_of_taglist, {'word':item['name'], 'menu': item['class'], 'kind': kind})
-      elseif ( kind == "c" ) && ( s:theStringIsAfteraPeriod == 0 )
-        call add(list_with_result_of_taglist, {'word':item['name'], 'kind': kind})
-      endif
+      call SCCompleteAddItemsToListAccordingToKind(item, list_with_result_of_taglist)
     endfor
     return list_with_result_of_taglist
   endif
@@ -46,20 +42,45 @@ fun! SCCompleteFindStart(line, column)
       let start -= 1
     endwhile
     call SCCompleteCheckForPeriodAtStart(a:line, start)
+    call SCCompleteCheckForClassMethod(a:line, start)
     return start
 endfun
 
 fun! SCCompleteCheckForPeriodAtStart(line, start)
-  " echom "This is the whole line: " . a:line
-  " echom "This is the start index: " . a:start
-  " echom "This is where we are: " . a:line[a:start - 1]
   if a:line[a:start - 1] == "\."
-    echom "We have found a period!!"
     let s:theStringIsAfteraPeriod = 1
   else
-    echom "We have NOT found a period!!"
     let s:theStringIsAfteraPeriod = 0
   endif
-
 endfun
 
+fun! SCCompleteCheckForClassMethod(line, start)
+  let startOfWordThatStartedCompletion= copy(a:start-2)
+  let startOfWordBeforeTheOneThatStartedCompletion= copy(a:start-2)
+  while l:startOfWordBeforeTheOneThatStartedCompletion > 0 && a:line[l:startOfWordBeforeTheOneThatStartedCompletion- 1] =~ '\a'
+    let l:startOfWordBeforeTheOneThatStartedCompletion -= 1
+  endwhile
+
+  let s:wordThatTheMethodIsCalledFrom = a:line[(l:startOfWordBeforeTheOneThatStartedCompletion):(l:startOfWordThatStartedCompletion)]
+
+  if match(a:line[a:start],'\*[A-Z]*') < 0
+    let s:thePeriodIsAfteraClass = 1
+  else
+    let s:thePeriodIsAfteraClass = 0
+  endif
+endfun
+
+fun! SCCompleteAddItemsToListAccordingToKind(item, list)
+  let l:kind = a:item['kind']
+  if s:theStringIsAfteraPeriod
+    if s:thePeriodIsAfteraClass
+      if l:kind == "M" "&& (a:item['class'] == s:wordThatTheMethodIsCalledFrom) TODO If I am going to have only the relevant methods I have to also have the ones from the superclasses
+        call add(a:list, {'word':a:item['name'], 'menu': a:item['class'], 'kind': l:kind})
+      endif
+    elseif l:kind == "m" "if it i not a class it must be a method call on a variable TODO
+      call add(a:list, {'word':a:item['name'], 'menu': a:item['class'], 'kind': l:kind})
+    endif
+  elseif ( l:kind == "c" ) && ( s:theStringIsAfteraPeriod == 0 )
+    call add(a:list, {'word':a:item['name'], 'kind': l:kind})
+  endif
+endfun
