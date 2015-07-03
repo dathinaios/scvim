@@ -198,7 +198,7 @@ SCVim {
 		Class.allClasses.do {
 			arg klass;
 			var klassName, klassFilename, klassSearchString, superClassesArray, superClassesString = "";
-			var lineStringForClasses = "", lineStringForClassMethods = "", lineStringForInstanceMethods = "";
+			var lineStringForClasses = "";
 
 			klassName         = klass.asString;
 			klassFilename     = klass.filenameSymbol;
@@ -217,10 +217,10 @@ SCVim {
       //For istance methods just use the normal one
       Array.findRespondingMethodFor(\sort).argumentString;
 
-      SinOsc.ar
-      Array.fill3D
+      SinGrain
+      Array.fib
       Collection.fill
-      fdfkj.forc
+      fdfkj.free
       */
 
       superClassesArray = klass.superclasses;
@@ -240,6 +240,7 @@ SCVim {
       //find and add the instance methods with additional info
 
 			klass.methods.do{|meth|
+      var lineStringForInstanceMethods = "";
 				var methName, methFilename, methSearchString;
 				methName     = meth.name;
 				methFilename = meth.filenameSymbol;
@@ -261,6 +262,7 @@ SCVim {
 			//find and add the class methods
 
 			klass.metaclass.methods.do{|meth|
+        var lineStringForClassMethods = "";
 				var methName, methFilename, methSearchString;
 				methName     = meth.name;
 				methFilename = meth.filenameSymbol;
