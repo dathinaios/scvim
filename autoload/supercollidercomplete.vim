@@ -16,6 +16,8 @@
 "                                                This file is part of SCVIM "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+" TODO for no match return all methods or nothing
+
 " SuperCollider kinds
 " c  classes
 " m  instance methods
@@ -27,8 +29,10 @@ fun! supercollidercomplete#Complete(findstart, base)
   else
     let list_with_result_of_taglist = []
     let matches = taglist("^" . a:base .  "*")
+
+    " TODO SCCompleteResolveVariables to class
+      
     for item in l:matches
-      " TODO SCCompleteResolveVariables to class
       call SCCompleteAddItemsToListAccordingToKind(item, list_with_result_of_taglist, s:wordBeforeThePeriodAtTheStartOfOurCall)
       "also call for the superclasses
       if item['class'] ==# s:wordBeforeThePeriodAtTheStartOfOurCall
@@ -71,10 +75,8 @@ fun! SCCompleteCheckForClassMethod(line, start)
   endwhile
 
   let s:wordBeforeThePeriodAtTheStartOfOurCall = a:line[(l:startOfWordBeforeTheOneThatStartedCompletion):(l:startOfWordThatStartedCompletion)]
-  echom s:wordBeforeThePeriodAtTheStartOfOurCall
 
   if match(s:wordBeforeThePeriodAtTheStartOfOurCall,'\u') < 0
-    echom "It is not after a class!!!"
     let s:thePeriodIsAfteraClass = 0
   else
     let s:thePeriodIsAfteraClass = 1
@@ -95,14 +97,11 @@ fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
     call add(a:list, {'word':a:item['name'], 'kind': l:kind})
   endif
 endfun
-      
 
-
-
-         " if a:item['class'] ==# 'SinOsc'
-         "   echom "word called onto: " .
-         "   s:wordBeforeThePeriodAtTheStartOfOurCall
-         "   echom 'Currently checking the class for: ' . a:forClass
-         "   echom a:item['superclasses']
-         " endif
+" if a:item['class'] ==# 'SinOsc'
+"   echom "word called onto: " .
+"   s:wordBeforeThePeriodAtTheStartOfOurCall
+"   echom 'Currently checking the class for: ' . a:forClass
+"   echom a:item['superclasses']
+" endif
 

@@ -195,11 +195,10 @@ SCVim {
 		tagfile.write("!_TAG_PROGRAM_URL	https://github.com/sbl/scvim" ++ Char.nl);
 		tagfile.write("!_TAG_PROGRAM_VERSION	2.0//" ++ Char.nl);
 
-    /* TODO: sort the tag file so hat vim can use binary search that is faster */
-
 		Class.allClasses.do {
 			arg klass;
 			var klassName, klassFilename, klassSearchString, superClassesArray, superClassesString = "";
+			var lineStringForClasses = "", lineStringForClassMethods = "", lineStringForInstanceMethods = "";
 
 			klassName         = klass.asString;
 			klassFilename     = klass.filenameSymbol;
@@ -214,27 +213,29 @@ SCVim {
 
       /*
       //to get class methods I need to use Meta_SinOsc
-      Meta_SinOsc.methods.do{arg i; i.name.postln;i.filenameSymbol.postln;}
       Meta_SinOsc.findRespondingMethodFor(\ar).argumentString;
       //For istance methods just use the normal one
       Array.findRespondingMethodFor(\sort).argumentString;
 
-      "Meta_"++"SinOsc".class.methods
-      SinOsc.AbstractResponderFunc
-      Meta_Array.methods.do{arg i; i.name.postln}
-
-      SinOsc.aj
-      Array.fib
+      SinOsc.ar
+      Array.fill3D
       Collection.fill
-
-      Arrive	Classes/SteeringBehaviors.sc	/^Arrive { var entity, <>targetPos, <>deceleration, <>tweak;$/;"	c	language:supercollider
-      AddToWealthWestWorldWithWoman/Miner.cpp/^void Miner::AddToWealth(const int val)$/;" findRespondingMethodForlanguage:C++ class:Miner
+      fdfkj.forc
       */
-
-			tagfile.write(klassName ++ Char.tab ++ klassFilename ++ Char.tab ++ klassSearchString ++ Char.tab  ++ "c"  ++ Char.tab  ++ "class:"++ klassName  ++ Char.tab ++ "superclasses:" ++ superClassesString ++ Char.tab  ++ "language:supercollider" ++ Char.nl );
 
       superClassesArray = klass.superclasses;
       superClassesArray.do{arg i; superClassesString = superClassesString ++ i.asString ++ ";"};
+
+      lineStringForClasses = lineStringForClasses ++ klassName ++ Char.tab;
+      lineStringForClasses = lineStringForClasses ++ klassFilename ++ Char.tab;
+      lineStringForClasses = lineStringForClasses ++ klassSearchString ++ Char.tab;
+      lineStringForClasses = lineStringForClasses ++ "c"  ++ Char.tab;
+      lineStringForClasses = lineStringForClasses ++ "class:"++ klassName  ++ Char.tab;
+      lineStringForClasses = lineStringForClasses ++ "superclasses:" ++ superClassesString;
+      lineStringForClasses = lineStringForClasses ++ Char.tab  ++ "language:supercollider" ++ Char.nl;
+
+			tagfile.write(lineStringForClasses);
+
 
       //find and add the instance methods with additional info
 
@@ -246,7 +247,15 @@ SCVim {
 				// when compiling. 123 is the curly bracket.
 				methSearchString = format('/% %/;"'.asString, methName, 123.asAscii);
 
-				tagfile.write(methName ++ Char.tab ++ methFilename ++ Char.tab ++ methSearchString ++ Char.tab  ++ "m" ++ Char.tab  ++ "class:"++ klassName  ++ Char.tab  ++ "superclasses:" ++ superClassesString  ++ Char.tab  ++ "language:supercollider" ++ Char.nl );
+        lineStringForInstanceMethods = lineStringForInstanceMethods ++ methName ++ Char.tab;
+        lineStringForInstanceMethods = lineStringForInstanceMethods ++ methFilename ++ Char.tab;
+        lineStringForInstanceMethods = lineStringForInstanceMethods ++ methSearchString ++ Char.tab;
+        lineStringForInstanceMethods = lineStringForInstanceMethods ++ "m"  ++ Char.tab;
+        lineStringForInstanceMethods = lineStringForInstanceMethods ++ "class:"++ klassName  ++ Char.tab;
+        lineStringForInstanceMethods = lineStringForInstanceMethods ++ "superclasses:" ++ superClassesString;
+        lineStringForInstanceMethods = lineStringForInstanceMethods ++ Char.tab  ++ "language:supercollider" ++ Char.nl;
+
+        tagfile.write(lineStringForInstanceMethods);
 			};
 
 			//find and add the class methods
@@ -259,7 +268,15 @@ SCVim {
 				// when compiling. 123 is the curly bracket.
 				methSearchString = format('/% %/;"'.asString, methName, 123.asAscii);
 
-				tagfile.write(methName ++ Char.tab ++ methFilename ++ Char.tab ++ methSearchString ++ Char.tab  ++ "M" ++ Char.tab  ++ "class:"++ klassName  ++ Char.tab  ++ "superclasses:" ++ superClassesString  ++ Char.tab   ++ "language:supercollider" ++ Char.nl );
+        lineStringForClassMethods = lineStringForClassMethods ++ methName ++ Char.tab;
+        lineStringForClassMethods = lineStringForClassMethods ++ methFilename ++ Char.tab;
+        lineStringForClassMethods = lineStringForClassMethods ++ methSearchString ++ Char.tab;
+        lineStringForClassMethods = lineStringForClassMethods ++ "M"  ++ Char.tab;
+        lineStringForClassMethods = lineStringForClassMethods ++ "class:"++ klassName  ++ Char.tab;
+        lineStringForClassMethods = lineStringForClassMethods ++ "superclasses:" ++ superClassesString;
+        lineStringForClassMethods = lineStringForClassMethods ++ Char.tab  ++ "language:supercollider" ++ Char.nl;
+
+      tagfile.write(lineStringForClassMethods);
 			}
 		};
 
