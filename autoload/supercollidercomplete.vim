@@ -34,7 +34,7 @@ fun! supercollidercomplete#Complete(findstart, base)
       
     for item in l:matches
       call SCCompleteAddItemsToListAccordingToKind(item, list_with_result_of_taglist, s:wordBeforeThePeriodAtTheStartOfOurCall)
-      "also call for the superclasses
+      "Also call for the superclasses
       if item['class'] ==# s:wordBeforeThePeriodAtTheStartOfOurCall
         let superClassList = split(item['superclasses'], ';')
         for sclass in superClassList
@@ -55,6 +55,7 @@ fun! SCCompleteFindStart(line, column)
       let start -= 1
     endwhile
     call SCCompleteCheckForPeriodAtStart(a:line, start)
+    call SCCompleteCheckForParenthesisAtStart(a:line, start)
     call SCCompleteCheckForClassMethod(a:line, start)
     return start
 endfun
@@ -64,6 +65,16 @@ fun! SCCompleteCheckForPeriodAtStart(line, start)
     let s:theStringIsAfteraPeriod = 1
   else
     let s:theStringIsAfteraPeriod = 0
+  endif
+endfun
+
+fun! SCCompleteCheckForParenthesisAtStart(line, start)
+  if a:line[a:start - 1] == "("
+    echom "after parenthesis eo"
+    let s:theStringIsAfteraParenthesis = 1
+  else
+    echom "NOT after parenthesis eo"
+    let s:theStringIsAfteraParenthesis = 0
   endif
 endfun
 
