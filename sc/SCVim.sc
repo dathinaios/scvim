@@ -189,11 +189,11 @@ SCVim {
 		tagfile = File.open(tagPath, "w");
 
 		tagfile.write('!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/'.asString ++ Char.nl);
-		tagfile.write("!_TAG_FILE_SORTED	0	/0=unsorted, 1=sorted, 2=foldcase/" ++ Char.nl);
+		tagfile.write("!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/" ++ Char.nl);
 		tagfile.write("!_TAG_PROGRAM_AUTHOR	Stephen Lumenta (modified by Dionysis Athinaios) /stephen.lumenta@gmail.com/" ++ Char.nl);
 		tagfile.write("!_TAG_PROGRAM_NAME	SCVim.sc//" ++ Char.nl);
 		tagfile.write("!_TAG_PROGRAM_URL	https://github.com/sbl/scvim" ++ Char.nl);
-		tagfile.write("!_TAG_PROGRAM_VERSION	1.0//" ++ Char.nl);
+		tagfile.write("!_TAG_PROGRAM_VERSION	2.0//" ++ Char.nl);
 
     /* TODO: sort the tag file so hat vim can use binary search that is faster */
 
@@ -223,8 +223,8 @@ SCVim {
       SinOsc.AbstractResponderFunc
       Meta_Array.methods.do{arg i; i.name.postln}
 
-      SinOsc.ar
-      Array.fi
+      SinOsc.aj
+      Array.fib
       Collection.fill
 
       Arrive	Classes/SteeringBehaviors.sc	/^Arrive { var entity, <>targetPos, <>deceleration, <>tweak;$/;"	c	language:supercollider
@@ -264,6 +264,7 @@ SCVim {
 		};
 
 		tagfile.close();
-		"finished generating tagsfile".postln;
+		//sorting the file allows vim to do binary search
+		"sort -f -s -k1.1,1.1 .sctags > .sctags.tmp; mv .sctags.tmp .sctags".unixCmd({"finished generating tagsfile".postln});
 	}
 } // end class
