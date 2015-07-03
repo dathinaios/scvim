@@ -29,9 +29,9 @@ fun! supercollidercomplete#Complete(findstart, base)
     let matches = taglist("^" . a:base .  "*")
     for item in l:matches
       " TODO SCCompleteResolveVariables to class
-      call SCCompleteAddItemsToListAccordingToKind(item, list_with_result_of_taglist, s:wordThatTheMethodIsCalledFrom)
+      call SCCompleteAddItemsToListAccordingToKind(item, list_with_result_of_taglist, s:wordBeforeThePeriodAtTheStartOfOurCall)
       "also call for the superclasses
-      if item['class'] ==# s:wordThatTheMethodIsCalledFrom
+      if item['class'] ==# s:wordBeforeThePeriodAtTheStartOfOurCall
         let superClassList = split(item['superclasses'], ';')
         for sclass in superClassList
           for sclassDictionary in l:matches
@@ -70,11 +70,14 @@ fun! SCCompleteCheckForClassMethod(line, start)
     let l:startOfWordBeforeTheOneThatStartedCompletion -= 1
   endwhile
 
-  let s:wordThatTheMethodIsCalledFrom = a:line[(l:startOfWordBeforeTheOneThatStartedCompletion):(l:startOfWordThatStartedCompletion)]
-  if match(l:startOfWordBeforeTheOneThatStartedCompletion[0],'\*[A-Z]*') < 0
-    let s:thePeriodIsAfteraClass = 1
-  else
+  let s:wordBeforeThePeriodAtTheStartOfOurCall = a:line[(l:startOfWordBeforeTheOneThatStartedCompletion):(l:startOfWordThatStartedCompletion)]
+  echom s:wordBeforeThePeriodAtTheStartOfOurCall
+
+  if match(s:wordBeforeThePeriodAtTheStartOfOurCall,'\u') < 0
+    echom "It is not after a class!!!"
     let s:thePeriodIsAfteraClass = 0
+  else
+    let s:thePeriodIsAfteraClass = 1
   endif
 endfun
 
@@ -82,15 +85,6 @@ fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
   let l:kind = a:item['kind']
   if s:theStringIsAfteraPeriod
     if s:thePeriodIsAfteraClass
-      "TODO filter according to class or superclass. Dont forget that when
-      "daling with class methods we are daling with metaclasses
-      
-         " if a:item['class'] ==# 'SinOsc'
-         "   echom "word called onto: " . s:wordThatTheMethodIsCalledFrom
-         "   echom 'Currently checking the class for: ' . a:forClass
-         "   echom a:item['superclasses']
-         " endif
-
       if l:kind ==# "M" && (a:item['class'] ==# ('Meta_' . a:forClass))
         call add(a:list, {'word':a:item['name'], 'menu': a:item['class'], 'kind': l:kind})
       endif
@@ -101,3 +95,14 @@ fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
     call add(a:list, {'word':a:item['name'], 'kind': l:kind})
   endif
 endfun
+      
+
+
+
+         " if a:item['class'] ==# 'SinOsc'
+         "   echom "word called onto: " .
+         "   s:wordBeforeThePeriodAtTheStartOfOurCall
+         "   echom 'Currently checking the class for: ' . a:forClass
+         "   echom a:item['superclasses']
+         " endif
+
