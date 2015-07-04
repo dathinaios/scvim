@@ -197,7 +197,7 @@ SCVim {
 
 		Class.allClasses.do {
 			arg klass;
-			var klassName, klassFilename, klassSearchString, superClassesArray, superClassesString = "";
+			var klassName, klassFilename, klassSearchString,superClassesList, classTreeString= "";
 			var lineStringForClasses = "";
 
 			klassName         = klass.asString;
@@ -224,24 +224,31 @@ SCVim {
       GameLoop.class.findRespondingMethodFor(\new).argumentString;
       GameLoop.class.methods.do{arg i; i.name.postln}
       SinOsc.
-      GameLoop.new
-      Array.fill
-      File.openFiles
+      GameLoop.
+      Array.fib
+      akskd.fd
+
+      File.open
       Array.fillND
-      Collection.
-      Arrive.new
+      Collection.fill
+      aks.f
+      Arrive.newFromDict
+      a = [1,2,3,4].asList
+      a
 
       */
 
-      superClassesArray = klass.superclasses;
-      superClassesArray.do{arg i; superClassesString = superClassesString ++ i.asString ++ ";"};
+      superClassesList = List.new;
+      klass.superclasses.reverseDo{arg i; superClassesList = superClassesList.add(i)};
+      classTreeString = classTreeString++ klass.asString ++ ";";
+      superClassesList.do{arg i; classTreeString = classTreeString ++ i.asString ++ ";"};
 
       lineStringForClasses = lineStringForClasses ++ klassName ++ Char.tab;
       lineStringForClasses = lineStringForClasses ++ klassFilename ++ Char.tab;
       lineStringForClasses = lineStringForClasses ++ klassSearchString ++ Char.tab;
       lineStringForClasses = lineStringForClasses ++ "c"  ++ Char.tab;
       lineStringForClasses = lineStringForClasses ++ "class:"++ klassName  ++ Char.tab;
-      lineStringForClasses = lineStringForClasses ++ "superclasses:" ++ superClassesString ++ Char.tab;
+      lineStringForClasses = lineStringForClasses ++ "classTree:" ++ classTreeString++ Char.tab;
       lineStringForClasses = lineStringForClasses ++ "language:supercollider" ++ Char.nl;
 
 			tagfile.write(lineStringForClasses);
@@ -258,10 +265,17 @@ SCVim {
 				// when compiling. 123 is the curly bracket.
 				methSearchString = format('/% %/;"'.asString, methName, 123.asAscii);
 
-        if(meth.notNil && meth.argumentString.notNil, 
-          {
+        if(meth.notNil && meth.argumentString.notNil,
+          { var string;
+            string = meth.argumentString.replace("this", ""); // .reject({ |c| c.ascii == 32});
+            string = string.trim;
+            if (string[0].asSymbol == ',', {string.removeAt(0)});
+            string = string.trim;
             //need to escape all the symbols that have a special meaning in ctags
-            arguments = meth.argumentString.replace("\n", "'n'").replace("\t", "'t'").replace("\r", "'r'") .replace("this", "").reject({ |c| c.ascii == 32})
+            string = string.replace("\n", "'n'").replace("\t", "'t'").replace("\r", "'r'");
+            string = string.insert(0, "(");
+            string = string.insert(string.size, ")");
+            arguments = string;
           }
         );
 
@@ -273,7 +287,7 @@ SCVim {
         lineStringForInstanceMethods = lineStringForInstanceMethods ++ methSearchString ++ Char.tab;
         lineStringForInstanceMethods = lineStringForInstanceMethods ++ "m"  ++ Char.tab;
         lineStringForInstanceMethods = lineStringForInstanceMethods ++ "class:"++ klassName  ++ Char.tab;
-        lineStringForInstanceMethods = lineStringForInstanceMethods ++ "superclasses:" ++ superClassesString ++ Char.tab;
+        lineStringForInstanceMethods = lineStringForInstanceMethods ++ "classTree:" ++ classTreeString++ Char.tab;
         lineStringForInstanceMethods = lineStringForInstanceMethods ++ "methodArgs:" ++ arguments  ++ Char.tab;
         lineStringForInstanceMethods = lineStringForInstanceMethods ++ "language:supercollider" ++ Char.nl;
 
@@ -292,10 +306,17 @@ SCVim {
 				// when compiling. 123 is the curly bracket.
 				methSearchString = format('/% %/;"'.asString, methName, 123.asAscii);
 
-        /* if(klass == GameLoop){meth.argumentString.debug("lets see: ")}; */
-        if(meth.notNil && meth.argumentString.notNil, 
-          {
-            arguments = meth.argumentString.replace("\n", "'n'").replace("\t", "'t'").replace("\r", "'r'") .replace("this", "").reject({ |c| c.ascii == 32})
+        if(meth.notNil && meth.argumentString.notNil,
+          { var string;
+            string = meth.argumentString.replace("this", ""); // .reject({ |c| c.ascii == 32});
+            string = string.trim;
+            if (string[0].asSymbol == ',', {string.removeAt(0)});
+            string = string.trim;
+            //need to escape all the symbols that have a special meaning in ctags
+            string = string.replace("\n", "'n'").replace("\t", "'t'").replace("\r", "'r'");
+            string = string.insert(0, "(");
+            string = string.insert(string.size, ")");
+            arguments = string;
           }
         );
 
@@ -304,7 +325,7 @@ SCVim {
         lineStringForClassMethods = lineStringForClassMethods ++ methSearchString ++ Char.tab;
         lineStringForClassMethods = lineStringForClassMethods ++ "M"  ++ Char.tab;
         lineStringForClassMethods = lineStringForClassMethods ++ "class:"++ klassName  ++ Char.tab;
-        lineStringForClassMethods = lineStringForClassMethods ++ "superclasses:" ++ superClassesString ++ Char.tab;
+        lineStringForClassMethods = lineStringForClassMethods ++ "classTree:" ++ classTreeString++ Char.tab;
         lineStringForClassMethods = lineStringForClassMethods ++ "methodArgs:" ++ arguments ++ Char.tab;
         lineStringForClassMethods = lineStringForClassMethods ++ "language:supercollider" ++ Char.nl;
 
@@ -314,6 +335,8 @@ SCVim {
 
 		tagfile.close();
 		//sorting the file allows vim to do binary search. Aldo using uniq to remove duplicate lines
+		//vim is complaining that the file is not sorted still
 		"sort -f -s -k1 .sctags | uniq -u >  .sctags.tmp; mv .sctags.tmp .sctags".unixCmd({"finished generating tagsfile".postln});
 	}
+
 } // end class

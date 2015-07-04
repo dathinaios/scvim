@@ -33,10 +33,8 @@ fun! supercollidercomplete#Complete(findstart, base)
     " TODO SCCompleteResolveVariables to class
       
     for item in l:matches
-      call SCCompleteAddItemsToListAccordingToKind(item, list_with_result_of_taglist, s:wordBeforeThePeriodAtTheStartOfOurCall)
-      "Also call for the superclasses
       if item['class'] ==# s:wordBeforeThePeriodAtTheStartOfOurCall
-        let superClassList = split(item['superclasses'], ';')
+        let superClassList = split(item['classTree'], ';')
         for sclass in superClassList
           for sclassDictionary in l:matches
             call SCCompleteAddItemsToListAccordingToKind(sclassDictionary, list_with_result_of_taglist, sclass)
@@ -134,10 +132,10 @@ fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
       " ======================
 
       if l:kind ==# "M" && (a:item['class'] ==# ('Meta_' . a:forClass))
-        call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " args --> " . a:item['methodArgs'], 'kind': l:kind, 'dup': 1})
+        call add(a:list, {'word':a:item['name'], 'menu': a:item['methodArgs'] . " - " .  a:item['class'], 'kind': l:kind})
       endif
     elseif l:kind ==# "m" "if it i not a class it must be a method call on a variable TODO
-      call add(a:list, {'word':a:item['name'], 'menu': a:item['class'], 'kind': l:kind})
+      call add(a:list, {'word':a:item['name'], 'menu': a:item['methodArgs'] . " - " .  a:item['class'], 'kind': l:kind})
     endif
   elseif ( l:kind ==# "c" ) && ( s:theStringIsAfteraPeriod == 0 )
     call add(a:list, {'word':a:item['name'], 'kind': l:kind})
@@ -148,6 +146,6 @@ endfun
 "   echom "word called onto: " .
 "   s:wordBeforeThePeriodAtTheStartOfOurCall
 "   echom 'Currently checking the class for: ' . a:forClass
-"   echom a:item['superclasses']
+"   echom a:item['classTree']
 " endif
 
