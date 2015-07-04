@@ -57,6 +57,7 @@ fun! SCCompleteFindStart(line, column)
     call SCCompleteCheckForPeriodAtStart(a:line, start)
     call SCCompleteCheckForParenthesisAtStart(a:line, start)
     call SCCompleteCheckForClassMethod(a:line, start)
+    call SCCompleteCheckForMethodArgs(a:line, start)
     return start
 endfun
 
@@ -70,10 +71,8 @@ endfun
 
 fun! SCCompleteCheckForParenthesisAtStart(line, start)
   if a:line[a:start - 1] == "("
-    echom "after parenthesis eo"
     let s:theStringIsAfteraParenthesis = 1
   else
-    echom "NOT after parenthesis eo"
     let s:theStringIsAfteraParenthesis = 0
   endif
 endfun
@@ -94,12 +93,48 @@ fun! SCCompleteCheckForClassMethod(line, start)
   endif
 endfun
 
+fun! SCCompleteCheckForMethodArgs(line, start)
+  let startOfWordThatStartedCompletion= copy(a:start-2)
+  let startOfWordBeforeTheOneThatStartedCompletion= copy(a:start-2)
+  while l:startOfWordBeforeTheOneThatStartedCompletion > 0 && a:line[l:startOfWordBeforeTheOneThatStartedCompletion- 1] =~ '\a'
+    let l:startOfWordBeforeTheOneThatStartedCompletion -= 1
+  endwhile
+
+  let s:wordBeforeTheParenthesisAtTheStartOfOurCall = a:line[(l:startOfWordBeforeTheOneThatStartedCompletion):(l:startOfWordThatStartedCompletion)]
+
+  if match(s:wordBeforeTheParenthesisAtTheStartOfOurCall,'\u') < 0
+    let s:theParenthesisIsAfteraClass = 0
+  else
+    let s:theParenthesisIsAfteraClass = 1
+  endif
+endfun
+
 fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
   let l:kind = a:item['kind']
+
+  if s:theStringIsAfteraParenthesis
+    call add(a:list, {'word': "Here we should be displaying arguments!!", 'menu': a:item['class'] , 'kind': l:kind})
+    if s:theParenthesisIsAfteraClass
+    endif
+  endif
+
   if s:theStringIsAfteraPeriod
     if s:thePeriodIsAfteraClass
+
+      " TODO For acting upon end of completion, see the |CompleteDone| autocommand event.
+
+      " debuging ============
+      " if a:item['class'] ==# 'Meta_GameLoop'
+      "   echom "-------------------------------------------------------------------------------------------------"
+      "   echom a:item['kind']
+      "   echom a:item['class']
+      "   echom a:forClass
+      "   echom a:item['name'] . a:item['methodArgs']
+      " endif
+      " ======================
+
       if l:kind ==# "M" && (a:item['class'] ==# ('Meta_' . a:forClass))
-        call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " args --> " . a:item['methodArgs'], 'kind': l:kind})
+        call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " args --> " . a:item['methodArgs'], 'kind': l:kind, 'dup': 1})
       endif
     elseif l:kind ==# "m" "if it i not a class it must be a method call on a variable TODO
       call add(a:list, {'word':a:item['name'], 'menu': a:item['class'], 'kind': l:kind})
