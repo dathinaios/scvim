@@ -189,7 +189,7 @@ SCVim {
 		tagfile = File.open(tagPath, "w");
 
 		tagfile.write('!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/'.asString ++ Char.nl);
-		tagfile.write("!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/" ++ Char.nl);
+		tagfile.write("!_TAG_FILE_SORTED	2	/0=unsorted, 1=sorted, 2=foldcase/" ++ Char.nl);
 		tagfile.write("!_TAG_PROGRAM_AUTHOR	Stephen Lumenta (modified by Dionysis Athinaios) /stephen.lumenta@gmail.com/" ++ Char.nl);
 		tagfile.write("!_TAG_PROGRAM_NAME	SCVim.sc//" ++ Char.nl);
 		tagfile.write("!_TAG_PROGRAM_URL	https://github.com/sbl/scvim" ++ Char.nl);
@@ -212,15 +212,25 @@ SCVim {
       */
 
       /*
+      TODO ahy is GameLoop not displaying its new method
+      */
+
+      /*
       //to get class methods I need to use Meta_SinOsc
       Meta_SinOsc.findRespondingMethodFor(\ar).argumentString;
       //For istance methods just use the normal one
       Array.findRespondingMethodFor(\sort).argumentString;
 
-      SinOsc.arj
-      Array.fib
+      GameLoop.class.findRespondingMethodFor(\new).argumentString;
+      GameLoop.class.methods.do{arg i; i.name.postln}
+      SinOsc.
+      GameLoop.new
+      Array.fill
+      File.openFiles
+      Array.fillND
       Collection.
-      fdfkj.fastAtL
+      Arrive.new
+
       */
 
       superClassesArray = klass.superclasses;
@@ -251,7 +261,7 @@ SCVim {
         if(meth.notNil && meth.argumentString.notNil, 
           {
             //need to escape all the symbols that have a special meaning in ctags
-            arguments = meth.argumentString.replace("\n", "'n'").replace("\t", "'t'").replace("\r", "'r'") .replace("this", "").reject({ |c| c.ascii == 32})++";"
+            arguments = meth.argumentString.replace("\n", "'n'").replace("\t", "'t'").replace("\r", "'r'") .replace("this", "").reject({ |c| c.ascii == 32})
           }
         );
 
@@ -282,9 +292,10 @@ SCVim {
 				// when compiling. 123 is the curly bracket.
 				methSearchString = format('/% %/;"'.asString, methName, 123.asAscii);
 
+        /* if(klass == GameLoop){meth.argumentString.debug("lets see: ")}; */
         if(meth.notNil && meth.argumentString.notNil, 
           {
-            arguments = meth.argumentString.replace("\n", "'n'").replace("\t", "'t'").replace("\r", "'r'") .replace("this", "").reject({ |c| c.ascii == 32})++";"
+            arguments = meth.argumentString.replace("\n", "'n'").replace("\t", "'t'").replace("\r", "'r'") .replace("this", "").reject({ |c| c.ascii == 32})
           }
         );
 
@@ -302,7 +313,7 @@ SCVim {
 		};
 
 		tagfile.close();
-		//sorting the file allows vim to do binary search
-		"sort -f -s -k1.1,1.1 .sctags > .sctags.tmp; mv .sctags.tmp .sctags".unixCmd({"finished generating tagsfile".postln});
+		//sorting the file allows vim to do binary search. Aldo using uniq to remove duplicate lines
+		"sort -f -s -k1 .sctags | uniq -u >  .sctags.tmp; mv .sctags.tmp .sctags".unixCmd({"finished generating tagsfile".postln});
 	}
 } // end class
