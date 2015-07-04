@@ -217,10 +217,10 @@ SCVim {
       //For istance methods just use the normal one
       Array.findRespondingMethodFor(\sort).argumentString;
 
-      SinGrain
-      Array.fill
-      Collection.fill
-      fdfkj.
+      SinOsc.arj
+      Array.fib
+      Collection.
+      fdfkj.fastAtL
       */
 
       superClassesArray = klass.superclasses;
@@ -231,16 +231,16 @@ SCVim {
       lineStringForClasses = lineStringForClasses ++ klassSearchString ++ Char.tab;
       lineStringForClasses = lineStringForClasses ++ "c"  ++ Char.tab;
       lineStringForClasses = lineStringForClasses ++ "class:"++ klassName  ++ Char.tab;
-      lineStringForClasses = lineStringForClasses ++ "superclasses:" ++ superClassesString ++Char.tab;
+      lineStringForClasses = lineStringForClasses ++ "superclasses:" ++ superClassesString ++ Char.tab;
       lineStringForClasses = lineStringForClasses ++ "language:supercollider" ++ Char.nl;
 
 			tagfile.write(lineStringForClasses);
 
-
       //find and add the instance methods with additional info
 
 			klass.methods.do{|meth|
-      var lineStringForInstanceMethods = "";
+        var lineStringForInstanceMethods = "";
+        var arguments;
 				var methName, methFilename, methSearchString;
 				methName     = meth.name;
 				methFilename = meth.filenameSymbol;
@@ -248,12 +248,23 @@ SCVim {
 				// when compiling. 123 is the curly bracket.
 				methSearchString = format('/% %/;"'.asString, methName, 123.asAscii);
 
+        if(meth.notNil && meth.argumentString.notNil, 
+          {
+            //need to escape all the symbols that have a special meaning in ctags
+            arguments = meth.argumentString.replace("\n", "'n'").replace("\t", "'t'").replace("\r", "'r'") .replace("this", "").reject({ |c| c.ascii == 32})++";"
+          }
+        );
+
+        /* ARHeadtracker.class.methods.do{arg i; i.name.postln}; */
+        /* ARHeadtracker.class.findRespondingMethodFor('new').argumentString.replace(",", ";").replace("this", "").reject({ |c| c.ascii == 32})++";"; */
+
         lineStringForInstanceMethods = lineStringForInstanceMethods ++ methName ++ Char.tab;
         lineStringForInstanceMethods = lineStringForInstanceMethods ++ methFilename ++ Char.tab;
         lineStringForInstanceMethods = lineStringForInstanceMethods ++ methSearchString ++ Char.tab;
         lineStringForInstanceMethods = lineStringForInstanceMethods ++ "m"  ++ Char.tab;
         lineStringForInstanceMethods = lineStringForInstanceMethods ++ "class:"++ klassName  ++ Char.tab;
         lineStringForInstanceMethods = lineStringForInstanceMethods ++ "superclasses:" ++ superClassesString ++ Char.tab;
+        lineStringForInstanceMethods = lineStringForInstanceMethods ++ "methodArgs:" ++ arguments  ++ Char.tab;
         lineStringForInstanceMethods = lineStringForInstanceMethods ++ "language:supercollider" ++ Char.nl;
 
         tagfile.write(lineStringForInstanceMethods);
@@ -263,6 +274,7 @@ SCVim {
 
 			klass.metaclass.methods.do{|meth|
         var lineStringForClassMethods = "";
+        var arguments;
 				var methName, methFilename, methSearchString;
 				methName     = meth.name;
 				methFilename = meth.filenameSymbol;
@@ -270,15 +282,22 @@ SCVim {
 				// when compiling. 123 is the curly bracket.
 				methSearchString = format('/% %/;"'.asString, methName, 123.asAscii);
 
+        if(meth.notNil && meth.argumentString.notNil, 
+          {
+            arguments = meth.argumentString.replace("\n", "'n'").replace("\t", "'t'").replace("\r", "'r'") .replace("this", "").reject({ |c| c.ascii == 32})++";"
+          }
+        );
+
         lineStringForClassMethods = lineStringForClassMethods ++ methName ++ Char.tab;
         lineStringForClassMethods = lineStringForClassMethods ++ methFilename ++ Char.tab;
         lineStringForClassMethods = lineStringForClassMethods ++ methSearchString ++ Char.tab;
         lineStringForClassMethods = lineStringForClassMethods ++ "M"  ++ Char.tab;
         lineStringForClassMethods = lineStringForClassMethods ++ "class:"++ klassName  ++ Char.tab;
         lineStringForClassMethods = lineStringForClassMethods ++ "superclasses:" ++ superClassesString ++ Char.tab;
+        lineStringForClassMethods = lineStringForClassMethods ++ "methodArgs:" ++ arguments ++ Char.tab;
         lineStringForClassMethods = lineStringForClassMethods ++ "language:supercollider" ++ Char.nl;
 
-      tagfile.write(lineStringForClassMethods);
+        tagfile.write(lineStringForClassMethods);
 			}
 		};
 

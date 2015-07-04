@@ -99,7 +99,7 @@ fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
   if s:theStringIsAfteraPeriod
     if s:thePeriodIsAfteraClass
       if l:kind ==# "M" && (a:item['class'] ==# ('Meta_' . a:forClass))
-        call add(a:list, {'word':a:item['name'], 'menu': a:item['class'], 'kind': l:kind})
+        call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " args --> " . a:item['methodArgs'], 'kind': l:kind})
       endif
     elseif l:kind ==# "m" "if it i not a class it must be a method call on a variable TODO
       call add(a:list, {'word':a:item['name'], 'menu': a:item['class'], 'kind': l:kind})
