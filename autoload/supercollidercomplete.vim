@@ -31,15 +31,19 @@ fun! supercollidercomplete#Complete(findstart, base)
     let matches = taglist("^" . a:base .  "*")
 
     " TODO SCCompleteResolveVariables to class
-      
+
     for item in l:matches
-      if item['class'] ==# s:wordBeforeThePeriodAtTheStartOfOurCall
-        let superClassList = split(item['classTree'], ';')
-        for sclass in superClassList
-          for sclassDictionary in l:matches
-            call SCCompleteAddItemsToListAccordingToKind(sclassDictionary, list_with_result_of_taglist, sclass)
+      if s:theParenthesisIsAfteraMethod
+        call SCCompleteAddItemsToListAccordingToKind(item, list_with_result_of_taglist, item['class'])
+      else
+        if item['class'] ==# s:wordBeforeThePeriodAtTheStartOfOurCall
+          let superClassList = split(item['classTree'], ';')
+          for sclass in superClassList
+            for sclassDictionary in l:matches
+              call SCCompleteAddItemsToListAccordingToKind(sclassDictionary, list_with_result_of_taglist, sclass)
+            endfor
           endfor
-        endfor
+        endif
       endif
       "-----------------------------
     endfor
@@ -102,8 +106,10 @@ fun! SCCompleteCheckForMethodArgs(line, start)
 
   if match(s:wordBeforeTheParenthesisAtTheStartOfOurCall,'\u') < 0
     let s:theParenthesisIsAfteraClass = 0
+    let s:theParenthesisIsAfteraMethod = 1
   else
     let s:theParenthesisIsAfteraClass = 1
+    let s:theParenthesisIsAfteraMethod = 0
   endif
 endfun
 
@@ -116,36 +122,29 @@ fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
     endif
   endif
 
-  if s:theStringIsAfteraPeriod
+  echom s:theStringIsAfteraPeriod
+
+ if s:theStringIsAfteraPeriod
     if s:thePeriodIsAfteraClass
-
       " TODO For acting upon end of completion, see the |CompleteDone| autocommand event.
-
-      " debuging ============
-      " if a:item['class'] ==# 'Meta_GameLoop'
-      "   echom "-------------------------------------------------------------------------------------------------"
-      "   echom a:item['kind']
-      "   echom a:item['class']
-      "   echom a:forClass
-      "   echom a:item['name'] . a:item['methodArgs']
-      " endif
-      " ======================
-
       if l:kind ==# "M" && (a:item['class'] ==# ('Meta_' . a:forClass))
-        call add(a:list, {'word':a:item['name'], 'menu': a:item['methodArgs'] . " - " .  a:item['class'], 'kind': l:kind})
+        call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': l:kind})
       endif
-    elseif l:kind ==# "m" "if it i not a class it must be a method call on a variable TODO
-      call add(a:list, {'word':a:item['name'], 'menu': a:item['methodArgs'] . " - " .  a:item['class'], 'kind': l:kind})
+    elseif l:kind ==# "m" "if it i not a class it must be a method call on a variable TODO filter results
+      call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': l:kind})
     endif
-  elseif ( l:kind ==# "c" ) && ( s:theStringIsAfteraPeriod == 0 )
+  elseif ( l:kind ==# "c" ) "&& ( s:theStringIsAfteraPeriod == 0 )
     call add(a:list, {'word':a:item['name'], 'kind': l:kind})
   endif
 endfun
 
-" if a:item['class'] ==# 'SinOsc'
-"   echom "word called onto: " .
-"   s:wordBeforeThePeriodAtTheStartOfOurCall
-"   echom 'Currently checking the class for: ' . a:forClass
-"   echom a:item['classTree']
+" debuging ============
+" if a:item['class'] ==# 'Meta_GameLoop'
+"   echom "-------------------------------------------------------------------------------------------------"
+"   echom a:item['kind']
+"   echom a:item['class']
+"   echom a:forClass
+"   echom a:item['name'] . a:item['methodArgs']
 " endif
+" ======================
 
