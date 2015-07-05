@@ -85,7 +85,7 @@ fun! SCCompleteFindStart(line, column)
     call SCCompleteCheckForParenthesisAtStart(a:line, start)
     call SCCompleteCheckForClassMethod(a:line, start)
     call SCCompleteCheckForMethodArgs(a:line, start)
-    call SCCompleteResolveVariableToClass()
+    " call SCCompleteResolveVariableToClass()
     return start
 endfun
 
