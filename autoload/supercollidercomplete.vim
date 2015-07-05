@@ -31,6 +31,14 @@ fun! supercollidercomplete#Complete(findstart, base)
     let matches = taglist("^" . a:base .  "*")
 
     " TODO SCCompleteResolveVariables to class
+    echom "---------------------------"
+    let l:foundVariable = search(s:wordBeforeThePeriodAtTheStartOfOurCall . '\s*=\s*\u', 'b')
+    echom l:foundVariable
+    echom getline(l:foundVariable)
+    let l:foundClass = matchstr(getline(l:foundVariable) , '\(' . s:wordBeforeThePeriodAtTheStartOfOurCall . '\s*=\s*\)\@<=\w\{-}\ze[\.\[\(]' ) 
+    echom l:foundClass
+    " call feedkeys("\<Esc>" . l:foundVariable . "gg")
+    echom "---------------------------"
 
     for item in l:matches
       if s:theParenthesisIsAfteraMethod
@@ -122,7 +130,7 @@ fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
     endif
   endif
 
-  echom s:theStringIsAfteraPeriod
+  " echom s:theStringIsAfteraPeriod
 
  if s:theStringIsAfteraPeriod
     if s:thePeriodIsAfteraClass
