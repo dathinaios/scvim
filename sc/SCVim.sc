@@ -225,23 +225,25 @@ SCVim {
       GameLoop.class.methods.do{arg i; i.name.postln}
       SinOsc.
       GameLoop.
-      Array.fib
-      akskd.fd
+      Array.fillNoteNames
+      akskd.f
 
       File.open
-      Array.fillND
+      Array.fillNoteNames
       Collection.fill
       aks.f
-      Arrive.newFromDict
-      a = [1,2,3,4].asList
-      a
+      testing = Array.new;
+
+      Array.fill
+      testing.focusInEvent
+      Array.fillNoteNames
 
       */
 
       superClassesList = List.new;
       klass.superclasses.reverseDo{arg i; superClassesList = superClassesList.add(i)};
-      classTreeString = classTreeString++ klass.asString ++ ";";
       superClassesList.do{arg i; classTreeString = classTreeString ++ i.asString ++ ";"};
+      classTreeString = classTreeString++ klass.asString ++ ";";
 
       lineStringForClasses = lineStringForClasses ++ klassName ++ Char.tab;
       lineStringForClasses = lineStringForClasses ++ klassFilename ++ Char.tab;

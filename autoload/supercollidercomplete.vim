@@ -17,6 +17,8 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " TODO for no match return all methods or nothing
+" TODO class methods filter correctly but instance methods after resolution
+" don't
 
 " SuperCollider kinds
 " c  classes
@@ -31,33 +33,38 @@ fun! supercollidercomplete#Complete(findstart, base)
     let matches = taglist("^" . a:base .  "*")
 
     for item in l:matches
-      if s:theParenthesisIsAfteraMethod
-        call SCCompleteAddItemsToListAccordingToKind(item, list_with_result_of_taglist, item['class'])
-      else
-        if item['class'] ==# s:wordBeforeThePeriodAtTheStartOfOurCall
-          let superClassList = split(item['classTree'], ';')
-          for sclass in superClassList
-            for sclassDictionary in l:matches
-              call SCCompleteAddItemsToListAccordingToKind(sclassDictionary, list_with_result_of_taglist, sclass)
-            endfor
+      if item['class'] ==# s:wordBeforeThePeriodAtTheStartOfOurCall "if a class method
+        let superClassList = split(item['classTree'], ';')
+        echom item['classTree']
+        for classFromSuperClassList in superClassList
+          for matchedItem in l:matches
+            call SCCompleteAddItemsToListAccordingToKind(matchedItem , list_with_result_of_taglist, classFromSuperClassList )
           endfor
-        endif
+        endfor
+      elseif s:theVariableWasSuccesfullyresolved && (s:classFoundAfterVariableResolution ==# item['class'])
+        let superClassList = split(item['classTree'], ';')
+        for classFromSuperClassList in superClassList
+          " TODO this is called 4-5 times instead of one. A waste of processing time. possible duplicates in tag file
+          " echom "from here: " . classFromSuperClassList
+          for matchedItem in l:matches
+            call SCCompleteAddItemsToListAccordingToKind(matchedItem , list_with_result_of_taglist, classFromSuperClassList )
+          endfor
+        endfor
+      else 
+        call SCCompleteAddItemsToListAccordingToKind(item, list_with_result_of_taglist, item['class'])
+        "-----------------------------
       endif
-      "-----------------------------
     endfor
     return list_with_result_of_taglist
   endif
 endfun
 
 fun! SCCompleteResolveVariableToClass()
-  echom "---------------------------"
   let l:foundVariable = search(s:wordBeforeThePeriodAtTheStartOfOurCall . '\s*=\s*\u', 'b')
   let l:foundClass = matchstr(getline(l:foundVariable) , '\(' . s:wordBeforeThePeriodAtTheStartOfOurCall . '\s*=\s*\)\@<=\w\{-}\ze[\.\[\(]' ) 
 
   if l:foundClass == "" "If I  dont have result check for strings, arrays and functions
     let l:foundClass = matchstr(getline(l:foundVariable) , '\(' . s:wordBeforeThePeriodAtTheStartOfOurCall . '\s*=\s*\)\@<=["[{]' )
-
-    echom l:foundClass
 
     "TODO detect all these from variable
     if l:foundClass == '['
@@ -71,9 +78,13 @@ fun! SCCompleteResolveVariableToClass()
     endif
   endif
 
-  echom l:foundClass
-  let s:wordBeforeThePeriodAtTheStartOfOurCall = l:foundClass
-  echom "---------------------------"
+  if l:foundClass == ""
+    let s:theVariableWasSuccesfullyresolved = 0
+  else
+    let s:theVariableWasSuccesfullyresolved = 1
+    let s:classFoundAfterVariableResolution = l:foundClass
+  endif
+  
 endfun
 
 fun! SCCompleteFindStart(line, column)
@@ -85,7 +96,7 @@ fun! SCCompleteFindStart(line, column)
     call SCCompleteCheckForParenthesisAtStart(a:line, start)
     call SCCompleteCheckForClassMethod(a:line, start)
     call SCCompleteCheckForMethodArgs(a:line, start)
-    " call SCCompleteResolveVariableToClass()
+    call SCCompleteResolveVariableToClass()
     return start
 endfun
 
@@ -151,12 +162,17 @@ fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
   " echom s:theStringIsAfteraPeriod
 
  if s:theStringIsAfteraPeriod
+   " TODO For acting upon end of completion, see the |CompleteDone| autocommand event.
     if s:thePeriodIsAfteraClass
-      " TODO For acting upon end of completion, see the |CompleteDone| autocommand event.
       if l:kind ==# "M" && (a:item['class'] ==# ('Meta_' . a:forClass))
+      " echom a:item['class'] . "   " . a:forClass
         call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': l:kind})
       endif
-    elseif l:kind ==# "m" "if it i not a class it must be a method call on a variable TODO filter results
+    elseif ( l:kind ==# "m" )  && ( a:item['class'] ==# a:forClass )
+      " echom a:item['class'] . "   " . a:forClass
+      call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': l:kind})
+    elseif ( s:theVariableWasSuccesfullyresolved == 0 ) && ( a:item['kind'] ==# "m" )
+      " echom a:item['class'] . "   " . a:forClass
       call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': l:kind})
     endif
   elseif ( l:kind ==# "c" ) "&& ( s:theStringIsAfteraPeriod == 0 )
