@@ -33,11 +33,24 @@ fun! supercollidercomplete#Complete(findstart, base)
     " TODO SCCompleteResolveVariables to class
     echom "---------------------------"
     let l:foundVariable = search(s:wordBeforeThePeriodAtTheStartOfOurCall . '\s*=\s*\u', 'b')
-    echom l:foundVariable
-    echom getline(l:foundVariable)
     let l:foundClass = matchstr(getline(l:foundVariable) , '\(' . s:wordBeforeThePeriodAtTheStartOfOurCall . '\s*=\s*\)\@<=\w\{-}\ze[\.\[\(]' ) 
+
+    if l:foundClass == "" "If I  dont have result check for strings, arrays and functions
+      let l:foundClass = matchstr(getline(l:foundVariable) , '\(' . s:wordBeforeThePeriodAtTheStartOfOurCall . '\s*=\s*\)\@<=["[{]' )
+
+      if l:foundClass == '['
+        let l:foundClass = "Array"
+      " elseif l:foundClass == '{'
+      "   let l:foundClass = "Function"
+      " elseif l:foundClass == "\""
+      "   let l:foundClass = "String"
+      " elseif l:foundClass == "\'"
+      "   let l:foundClass = "Symbol"
+      endif
+
+    endif
+
     echom l:foundClass
-    " call feedkeys("\<Esc>" . l:foundVariable . "gg")
     echom "---------------------------"
 
     for item in l:matches
