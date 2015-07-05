@@ -30,29 +30,6 @@ fun! supercollidercomplete#Complete(findstart, base)
     let list_with_result_of_taglist = []
     let matches = taglist("^" . a:base .  "*")
 
-    " TODO SCCompleteResolveVariables to class
-    echom "---------------------------"
-    let l:foundVariable = search(s:wordBeforeThePeriodAtTheStartOfOurCall . '\s*=\s*\u', 'b')
-    let l:foundClass = matchstr(getline(l:foundVariable) , '\(' . s:wordBeforeThePeriodAtTheStartOfOurCall . '\s*=\s*\)\@<=\w\{-}\ze[\.\[\(]' ) 
-
-    if l:foundClass == "" "If I  dont have result check for strings, arrays and functions
-      let l:foundClass = matchstr(getline(l:foundVariable) , '\(' . s:wordBeforeThePeriodAtTheStartOfOurCall . '\s*=\s*\)\@<=["[{]' )
-
-      if l:foundClass == '['
-        let l:foundClass = "Array"
-      " elseif l:foundClass == '{'
-      "   let l:foundClass = "Function"
-      " elseif l:foundClass == "\""
-      "   let l:foundClass = "String"
-      " elseif l:foundClass == "\'"
-      "   let l:foundClass = "Symbol"
-      endif
-
-    endif
-
-    echom l:foundClass
-    echom "---------------------------"
-
     for item in l:matches
       if s:theParenthesisIsAfteraMethod
         call SCCompleteAddItemsToListAccordingToKind(item, list_with_result_of_taglist, item['class'])
@@ -72,6 +49,33 @@ fun! supercollidercomplete#Complete(findstart, base)
   endif
 endfun
 
+fun! SCCompleteResolveVariableToClass()
+  echom "---------------------------"
+  let l:foundVariable = search(s:wordBeforeThePeriodAtTheStartOfOurCall . '\s*=\s*\u', 'b')
+  let l:foundClass = matchstr(getline(l:foundVariable) , '\(' . s:wordBeforeThePeriodAtTheStartOfOurCall . '\s*=\s*\)\@<=\w\{-}\ze[\.\[\(]' ) 
+
+  if l:foundClass == "" "If I  dont have result check for strings, arrays and functions
+    let l:foundClass = matchstr(getline(l:foundVariable) , '\(' . s:wordBeforeThePeriodAtTheStartOfOurCall . '\s*=\s*\)\@<=["[{]' )
+
+    echom l:foundClass
+
+    "TODO detect all these from variable
+    if l:foundClass == '['
+      let l:foundClass = "Array"
+      " elseif l:foundClass == '{'
+      "   let l:foundClass = "Function"
+      " elseif l:foundClass == "\""
+      "   let l:foundClass = "String"
+      " elseif l:foundClass == "\'"
+      "   let l:foundClass = "Symbol"
+    endif
+  endif
+
+  echom l:foundClass
+  let s:wordBeforeThePeriodAtTheStartOfOurCall = l:foundClass
+  echom "---------------------------"
+endfun
+
 fun! SCCompleteFindStart(line, column)
     let start = a:column - 1
     while start > 0 && a:line[start - 1] =~ '\a'
@@ -81,6 +85,7 @@ fun! SCCompleteFindStart(line, column)
     call SCCompleteCheckForParenthesisAtStart(a:line, start)
     call SCCompleteCheckForClassMethod(a:line, start)
     call SCCompleteCheckForMethodArgs(a:line, start)
+    call SCCompleteResolveVariableToClass()
     return start
 endfun
 
