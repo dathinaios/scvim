@@ -17,8 +17,7 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " TODO for no match return all methods or nothing
-" TODO class methods filter correctly but instance methods after resolution
-" don't
+" TODO when calling variable.a resolving to Array it freezes
 
 " SuperCollider kinds
 " c  classes
@@ -49,7 +48,7 @@ fun! supercollidercomplete#Complete(findstart, base)
             call SCCompleteAddItemsToListAccordingToKind(matchedItem , list_with_result_of_taglist, classFromSuperClassList )
           endfor
         endfor
-      else 
+      elseif  s:theVariableWasSuccesfullyresolved == 0
         call SCCompleteAddItemsToListAccordingToKind(item, list_with_result_of_taglist, item['class'])
         "-----------------------------
       endif
@@ -166,11 +165,9 @@ fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
       if l:kind ==# "M" && (a:item['class'] ==# ('Meta_' . a:forClass))
         call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': l:kind})
       endif
-    elseif ( l:kind ==# "m" )  && ( a:item['class'] ==# a:forClass )
-      " echom a:item['class'] . "   " . a:forClass
+    elseif (s:theVariableWasSuccesfullyresolved == 1) && ( l:kind ==# "m" )  && ( a:item['class'] ==# a:forClass )
       call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': l:kind})
     elseif ( s:theVariableWasSuccesfullyresolved == 0 ) && ( a:item['kind'] ==# "m" )
-      " echom a:item['class'] . "   " . a:forClass
       call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': l:kind})
     endif
   elseif ( l:kind ==# "c" ) "&& ( s:theStringIsAfteraPeriod == 0 )
