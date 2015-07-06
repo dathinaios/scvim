@@ -189,7 +189,7 @@ SCVim {
 		tagfile = File.open(tagPath, "w");
 
 		tagfile.write('!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/'.asString ++ Char.nl);
-		tagfile.write("!_TAG_FILE_SORTED	0	/0=unsorted, 1=sorted, 2=foldcase/" ++ Char.nl);
+		tagfile.write("!_TAG_FILE_SORTED	2	/0=unsorted, 1=sorted, 2=foldcase/" ++ Char.nl);
 		tagfile.write("!_TAG_PROGRAM_AUTHOR	Stephen Lumenta (modified by Dionysis Athinaios) /stephen.lumenta@gmail.com/" ++ Char.nl);
 		tagfile.write("!_TAG_PROGRAM_NAME	SCVim.sc//" ++ Char.nl);
 		tagfile.write("!_TAG_PROGRAM_URL	https://github.com/sbl/scvim" ++ Char.nl);
@@ -233,22 +233,20 @@ SCVim {
       Collection.fill
       aks.f
       testing = Array.new;
+      another = String.
 
-      Array.newClear
+      SinGrain.ar
+      FoaEncoderMatrix
       Array.fillNoteNames
-      testing.free
+      testing.curvelin
       Array.fillNoteNames
+      another.removing
 
       Object.methods.do{arg i; i.postln}
 
       Array.fillNoteNames
-      GameLoop.new
+      GameLoop.newCopyArgs
 
-      ~superClassesList = List.new; ~classTreeString = ""
-      Array.superclasses.reverseDo{arg i; ~superClassesList = ~superClassesList.add(i)};
-      ~superClassesList.do{arg i; ~classTreeString = ~classTreeString ++ i.asString ++ ";"};
-      ~classTreeString = ~classTreeString++ Array.asString ++ ";";
-      ~classTreeString.postln;
       */
 
       superClassesList = List.new;
@@ -348,10 +346,12 @@ SCVim {
 		};
 
 		tagfile.close();
-		//TODO sorting the file allows vim to do binary search. Aldo using uniq to remove duplicate lines
-		//vim is complaining that the file is not sorted still
-		/* "sort -f -s -k1 .sctags | uniq -u >  .sctags.tmp; mv .sctags.tmp .sctags".unixCmd({"finished generating tagsfile".postln}); */
-		/* "uniq -u .sctags".unixCmd({"finished generating tagsfile".postln}); */
+		//TODO sorting the file allows vim to do binary search. 
+
+		//get all .sctags lines  apart from the first six. sort them and delete duplicates with result in .sctags.tmp. get the 
+		//first six line of .sctags to .sctags_head. combine .sctags head with .sctags.tmp into the result and write it to .sctags
+		"tail -n+6 .sctags | sort -f -s -k1 | uniq -u >  .sctags.tmp;head -6 .sctags > .sctags_head.tmp; cat .sctags_head.tmp .sctags.tmp > .sctags_complete.tmp; mv .sctags_complete.tmp .sctags".unixCmd({"rm .sctags_head.tmp; rm .sctags.tmp".unixCmd; "finished generating tagsfile".postln});
+
 	}
 
 } // end class
