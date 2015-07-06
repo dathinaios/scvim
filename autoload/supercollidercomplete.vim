@@ -35,7 +35,6 @@ fun! supercollidercomplete#Complete(findstart, base)
     for item in l:matches
       if item['class'] ==# s:wordBeforeThePeriodAtTheStartOfOurCall "if a class method
         let superClassList = split(item['classTree'], ';')
-        echom item['classTree']
         for classFromSuperClassList in superClassList
           for matchedItem in l:matches
             call SCCompleteAddItemsToListAccordingToKind(matchedItem , list_with_result_of_taglist, classFromSuperClassList )
@@ -165,7 +164,6 @@ fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
    " TODO For acting upon end of completion, see the |CompleteDone| autocommand event.
     if s:thePeriodIsAfteraClass
       if l:kind ==# "M" && (a:item['class'] ==# ('Meta_' . a:forClass))
-      " echom a:item['class'] . "   " . a:forClass
         call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': l:kind})
       endif
     elseif ( l:kind ==# "m" )  && ( a:item['class'] ==# a:forClass )

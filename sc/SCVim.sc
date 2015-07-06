@@ -189,7 +189,7 @@ SCVim {
 		tagfile = File.open(tagPath, "w");
 
 		tagfile.write('!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/'.asString ++ Char.nl);
-		tagfile.write("!_TAG_FILE_SORTED	2	/0=unsorted, 1=sorted, 2=foldcase/" ++ Char.nl);
+		tagfile.write("!_TAG_FILE_SORTED	0	/0=unsorted, 1=sorted, 2=foldcase/" ++ Char.nl);
 		tagfile.write("!_TAG_PROGRAM_AUTHOR	Stephen Lumenta (modified by Dionysis Athinaios) /stephen.lumenta@gmail.com/" ++ Char.nl);
 		tagfile.write("!_TAG_PROGRAM_NAME	SCVim.sc//" ++ Char.nl);
 		tagfile.write("!_TAG_PROGRAM_URL	https://github.com/sbl/scvim" ++ Char.nl);
@@ -212,7 +212,7 @@ SCVim {
       */
 
       /*
-      TODO ahy is GameLoop not displaying its new method
+
       */
 
       /*
@@ -225,7 +225,7 @@ SCVim {
       GameLoop.class.methods.do{arg i; i.name.postln}
       SinOsc.
       GameLoop.
-      Array.fillNoteNames
+      Array.fill
       akskd.f
 
       File.open
@@ -234,16 +234,28 @@ SCVim {
       aks.f
       testing = Array.new;
 
-      Array.fill
-      testing.focusInEvent
+      Array.newClear
+      Array.fillNoteNames
+      testing.free
       Array.fillNoteNames
 
+      Object.methods.do{arg i; i.postln}
+
+      Array.fillNoteNames
+      GameLoop.new
+
+      ~superClassesList = List.new; ~classTreeString = ""
+      Array.superclasses.reverseDo{arg i; ~superClassesList = ~superClassesList.add(i)};
+      ~superClassesList.do{arg i; ~classTreeString = ~classTreeString ++ i.asString ++ ";"};
+      ~classTreeString = ~classTreeString++ Array.asString ++ ";";
+      ~classTreeString.postln;
       */
 
       superClassesList = List.new;
-      klass.superclasses.reverseDo{arg i; superClassesList = superClassesList.add(i)};
-      superClassesList.do{arg i; classTreeString = classTreeString ++ i.asString ++ ";"};
+      klass.superclasses.do{arg i; superClassesList = superClassesList.add(i)};
       classTreeString = classTreeString++ klass.asString ++ ";";
+      superClassesList.do{arg i; classTreeString = classTreeString ++ i.asString ++ ";"};
+      /* classTreeString.postln; */
 
       lineStringForClasses = lineStringForClasses ++ klassName ++ Char.tab;
       lineStringForClasses = lineStringForClasses ++ klassFilename ++ Char.tab;
@@ -336,9 +348,10 @@ SCVim {
 		};
 
 		tagfile.close();
-		//sorting the file allows vim to do binary search. Aldo using uniq to remove duplicate lines
+		//TODO sorting the file allows vim to do binary search. Aldo using uniq to remove duplicate lines
 		//vim is complaining that the file is not sorted still
-		"sort -f -s -k1 .sctags | uniq -u >  .sctags.tmp; mv .sctags.tmp .sctags".unixCmd({"finished generating tagsfile".postln});
+		/* "sort -f -s -k1 .sctags | uniq -u >  .sctags.tmp; mv .sctags.tmp .sctags".unixCmd({"finished generating tagsfile".postln}); */
+		/* "uniq -u .sctags".unixCmd({"finished generating tagsfile".postln}); */
 	}
 
 } // end class
