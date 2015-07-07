@@ -58,7 +58,7 @@ fun! supercollidercomplete#Complete(findstart, base)
 endfun
 
 fun! SCCompleteResolveVariableToClass()
-  let l:foundVariable = search(s:wordBeforeThePeriodAtTheStartOfOurCall . '\s*=\s*\u', 'b')
+  let l:foundVariable = search(s:wordBeforeThePeriodAtTheStartOfOurCall . '\s*=\s*\w', 'b')
   let l:foundClass = matchstr(getline(l:foundVariable) , '\(' . s:wordBeforeThePeriodAtTheStartOfOurCall . '\s*=\s*\)\@<=\w\{-}\ze[\.\[\(]' ) 
 
   if l:foundClass == "" "If I  dont have result check for strings, arrays and functions
