@@ -29,8 +29,7 @@ fun! supercollidercomplete#Complete(findstart, base)
     return SCCompleteFindStart(getline('.'), col('.'))
   else
     let list_with_result_of_taglist = []
-    let matches = taglist("^" . a:base .  "*")
-
+    let matches = taglist("^" . a:base)
     for item in l:matches
       if item['class'] ==# s:wordBeforeThePeriodAtTheStartOfOurCall "if a class method
         call SCCompleteIterateThroughSupeClasses(item, list_with_result_of_taglist, l:matches)
