@@ -33,29 +33,28 @@ fun! supercollidercomplete#Complete(findstart, base)
 
     for item in l:matches
       if item['class'] ==# s:wordBeforeThePeriodAtTheStartOfOurCall "if a class method
-        let superClassList = split(item['classTree'], ';')
-        for classFromSuperClassList in superClassList
-          for matchedItem in l:matches
-            call SCCompleteAddItemsToListAccordingToKind(matchedItem , list_with_result_of_taglist, classFromSuperClassList )
-          endfor
-        endfor
-        break " break out of the main search as we have started a new one
+        call SCCompleteIterateThroughSupeClasses(item, list_with_result_of_taglist, l:matches)
+        break " break out of the main search as we have started a new iteration
       elseif s:theVariableWasSuccesfullyresolved && (s:classFoundAfterVariableResolution ==# item['class'])
-        let superClassList = split(item['classTree'], ';')
-       for classFromSuperClassList in superClassList
-          " TODO this is called 4-5 times instead of one. A waste of processing time. possible duplicates in tag file
-          " echom "from here: " . classFromSuperClassList
-          for matchedItem in l:matches
-            call SCCompleteAddItemsToListAccordingToKind(matchedItem , list_with_result_of_taglist, classFromSuperClassList )
-          endfor
-        endfor
-        break
-      else
+        call SCCompleteIterateThroughSupeClasses(item, list_with_result_of_taglist, l:matches)
+        break " break out of the main search as we have started a new iteration
+      elseif s:theVariableWasSuccesfullyresolved == 0 && ( item['kind'] ==# "m")        
+        call SCCompleteAddItemsToListAccordingToKind(item, list_with_result_of_taglist, item['class'])
+      elseif item['kind'] ==# "c"
         call SCCompleteAddItemsToListAccordingToKind(item, list_with_result_of_taglist, item['class'])
       endif
     endfor
     return list_with_result_of_taglist
   endif
+endfun
+
+fun! SCCompleteIterateThroughSupeClasses(item, list, matches)
+  let superClassList = split(a:item['classTree'], ';')
+  for classFromSuperClassList in superClassList
+    for matchedItem in a:matches
+      call SCCompleteAddItemsToListAccordingToKind(matchedItem , a:list, classFromSuperClassList )
+    endfor
+  endfor
 endfun
 
 fun! SCCompleteResolveVariableToClass()
