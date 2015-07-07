@@ -211,49 +211,10 @@ SCVim {
       M  class methods
       */
 
-      /*
-
-      */
-
-      /*
-      //to get class methods I need to use Meta_SinOsc
-      Meta_SinOsc.findRespondingMethodFor(\ar).argumentString;
-      //For istance methods just use the normal one
-      Array.findRespondingMethodFor(\sort).argumentString;
-
-      GameLoop.class.findRespondingMethodFor(\new).argumentString;
-      GameLoop.class.methods.do{arg i; i.name.postln}
-      SinOsc.
-      GameLoop.
-      Array.fill
-      akskd.f
-
-      File.open
-      Array.fillNoteNames
-      Collection.fill
-      aks.f
-      testing = Array.new;
-      another = String.
-
-      SinGrain.ar
-      FoaEncoderMatrix
-      Array.fillNoteNames
-      testing.curvelin
-      Array.fillNoteNames
-      another.removing
-
-      Object.methods.do{arg i; i.postln}
-
-      Array.fillNoteNames
-      GameLoop.newCopyArgs
-
-      */
-
       superClassesList = List.new;
       klass.superclasses.do{arg i; superClassesList = superClassesList.add(i)};
       classTreeString = classTreeString++ klass.asString ++ ";";
       superClassesList.do{arg i; classTreeString = classTreeString ++ i.asString ++ ";"};
-      /* classTreeString.postln; */
 
       lineStringForClasses = lineStringForClasses ++ klassName ++ Char.tab;
       lineStringForClasses = lineStringForClasses ++ klassFilename ++ Char.tab;
@@ -290,9 +251,6 @@ SCVim {
             arguments = string;
           }
         );
-
-        /* ARHeadtracker.class.methods.do{arg i; i.name.postln}; */
-        /* ARHeadtracker.class.findRespondingMethodFor('new').argumentString.replace(",", ";").replace("this", "").reject({ |c| c.ascii == 32})++";"; */
 
         lineStringForInstanceMethods = lineStringForInstanceMethods ++ methName ++ Char.tab;
         lineStringForInstanceMethods = lineStringForInstanceMethods ++ methFilename ++ Char.tab;
@@ -346,7 +304,6 @@ SCVim {
 		};
 
 		tagfile.close();
-		//TODO sorting the file allows vim to do binary search. 
 
 		//get all .sctags lines  apart from the first six. sort them and delete duplicates with result in .sctags.tmp. get the 
 		//first six line of .sctags to .sctags_head. combine .sctags head with .sctags.tmp into the result and write it to .sctags
@@ -355,3 +312,13 @@ SCVim {
 	}
 
 } // end class
+
+/* TESTING
+testing = Array.new;
+another = String.
+testing = another
+
+another.realNextName
+ekdj.fastResetCamera
+Array.fill2D
+*/
