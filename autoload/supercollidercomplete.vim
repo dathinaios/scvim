@@ -17,7 +17,7 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " TODO for no match return all methods or nothing
-" TODO when calling variable.a resolving to Array it freezes
+" TODO Parenthesis after class fails
 
 " SuperCollider kinds
 " c  classes
@@ -148,29 +148,24 @@ fun! SCCompleteCheckForMethodArgs(line, start)
 endfun
 
 fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
-  let l:kind = a:item['kind']
 
   if s:theStringIsAfteraParenthesis
-    call add(a:list, {'word': "Here we should be displaying arguments!!", 'menu': a:item['class'] , 'kind': l:kind})
-    if s:theParenthesisIsAfteraClass
-    endif
+    call add(a:list, {'word': "Here we should be displaying arguments!!", 'menu': a:item['class'] , 'kind': a:item['kind']})
   endif
 
-  " echom s:theStringIsAfteraPeriod
-
- if s:theStringIsAfteraPeriod
-   " TODO For acting upon end of completion, see the |CompleteDone| autocommand event.
+  if s:theStringIsAfteraPeriod
+    " TODO For acting upon end of completion, see the |CompleteDone| autocommand event.
     if s:thePeriodIsAfteraClass
-      if l:kind ==# "M" && (a:item['class'] ==# ('Meta_' . a:forClass))
-        call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': l:kind})
+      if a:item['kind'] ==# "M" && (a:item['class'] ==# ('Meta_' . a:forClass))
+        call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': a:item['kind']})
       endif
-    elseif (s:theVariableWasSuccesfullyresolved == 1) && ( l:kind ==# "m" )  && ( a:item['class'] ==# a:forClass )
-      call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': l:kind})
+    elseif (s:theVariableWasSuccesfullyresolved == 1) && ( a:item['kind'] ==# "m" )  && ( a:item['class'] ==# a:forClass )
+      call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': a:item['kind']})
     elseif ( s:theVariableWasSuccesfullyresolved == 0 ) && ( a:item['kind'] ==# "m" )
-      call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': l:kind})
+      call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': a:item['kind']})
     endif
-  elseif ( l:kind ==# "c" ) "&& ( s:theStringIsAfteraPeriod == 0 )
-    call add(a:list, {'word':a:item['name'], 'kind': l:kind})
+  elseif ( a:item['kind'] ==# "c" ) "&& ( s:theStringIsAfteraPeriod == 0 )
+    call add(a:list, {'word':a:item['name'], 'kind': a:item['kind']})
   endif
 endfun
 
