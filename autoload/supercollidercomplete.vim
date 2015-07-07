@@ -39,18 +39,19 @@ fun! supercollidercomplete#Complete(findstart, base)
             call SCCompleteAddItemsToListAccordingToKind(matchedItem , list_with_result_of_taglist, classFromSuperClassList )
           endfor
         endfor
+        break " break out of the main search as we have started a new one
       elseif s:theVariableWasSuccesfullyresolved && (s:classFoundAfterVariableResolution ==# item['class'])
         let superClassList = split(item['classTree'], ';')
-        for classFromSuperClassList in superClassList
+       for classFromSuperClassList in superClassList
           " TODO this is called 4-5 times instead of one. A waste of processing time. possible duplicates in tag file
           " echom "from here: " . classFromSuperClassList
           for matchedItem in l:matches
             call SCCompleteAddItemsToListAccordingToKind(matchedItem , list_with_result_of_taglist, classFromSuperClassList )
           endfor
         endfor
-      elseif  s:theVariableWasSuccesfullyresolved == 0
+        break
+      else
         call SCCompleteAddItemsToListAccordingToKind(item, list_with_result_of_taglist, item['class'])
-        "-----------------------------
       endif
     endfor
     return list_with_result_of_taglist
