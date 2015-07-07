@@ -12,6 +12,7 @@ Features
 * A faked REPL via the terminal
 * Code Navigation (jump to definitions) via a global tags file "~/.sctags"
 * Auto-Completion of known words via tag completion
+* Omnicompletion of classes and 'fairly aware' completion of methods
 * Launch the SuperCollider QT Help System
 
 
