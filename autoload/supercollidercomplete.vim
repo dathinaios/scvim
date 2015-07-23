@@ -69,6 +69,18 @@ fun! supercollidercomplete#Complete(findstart, base)
   endif
 endfun
 
+fun! CheckIfListContains(list, string)
+  for item in a:list
+    if item == a:string
+      let result = 1
+      break
+    else
+      let result = 0
+    endif
+  endfor
+  return result
+endfun
+
 fun! SCCompleteIterateThroughSupeClasses(item, list, matches)
   let superClassList = split(a:item['classTree'], ';')
   for classFromSuperClassList in superClassList
