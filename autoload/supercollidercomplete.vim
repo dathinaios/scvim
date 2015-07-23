@@ -16,20 +16,42 @@
 "                                                This file is part of SCVIM "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-" TODO for no match return all methods or nothing
-" TODO Parenthesis after class fails
+
+"TODO
+"Have a good default result for when completion is called without anything
+"being typed yet. Would be useful to have all the methods to choose from
+"and type front and back to see if something exists.
 
 " SuperCollider kinds
 " c  classes
 " m  instance methods
 " M  class methods
+"
 
 fun! supercollidercomplete#Complete(findstart, base)
   if a:findstart
     return SCCompleteFindStart(getline('.'), col('.'))
   else
     let list_with_result_of_taglist = []
-    let matches = taglist("^" . a:base)
+
+    if s:theStringIsAfteraParenthesis
+      let baseString = substitute(a:base, '(', '', 'g')
+      let matches = taglist("^" . l:baseString)
+      let s:wordBeforeParenthesis = l:baseString
+    else
+      let baseString = a:base
+      let matches = taglist("^" . l:baseString)
+    endif
+    
+    " echom "---------------------------------------------------------------"
+    " for it in matches
+    "   if it['class'] == "ArrayedCollection"
+    "     echom it['name'] . "   :    "  . it['class']
+    "   endif
+    " endfor
+    " echom "---------------------------------------------------------------"
+
+    let s:columnOfCompletionStart = col('.')
     for item in l:matches
       if item['class'] ==# s:wordBeforeThePeriodAtTheStartOfOurCall "if a class method
         call SCCompleteIterateThroughSupeClasses(item, list_with_result_of_taglist, l:matches)
@@ -85,16 +107,26 @@ fun! SCCompleteResolveVariableToClass()
 endfun
 
 fun! SCCompleteFindStart(line, column)
+
+  if a:line[a:column - 2] == "("
+    let start = a:column - 2
+  else
     let start = a:column - 1
-    while start > 0 && a:line[start - 1] =~ '\a'
-      let start -= 1
-    endwhile
-    call SCCompleteCheckForPeriodAtStart(a:line, start)
-    call SCCompleteCheckForParenthesisAtStart(a:line, start)
-    call SCCompleteCheckForClassMethod(a:line, start)
-    call SCCompleteCheckForMethodArgs(a:line, start)
-    call SCCompleteResolveVariableToClass()
-    return start
+  endif
+
+  "TODO when finding the start with \a it stops in numbers and this methods
+  "like fill2D will not get matched
+  
+  while start > 0 && a:line[start - 1] =~ '\a'
+    let start -= 1
+  endwhile
+
+  call SCCompleteCheckForMethodArgs(a:line, start)
+  call SCCompleteCheckForParenthesisAtStart(a:line, start)
+  call SCCompleteCheckForPeriodAtStart(a:line, start)
+  call SCCompleteCheckForClassMethod(a:line, start)
+  call SCCompleteResolveVariableToClass()
+  return start
 endfun
 
 fun! SCCompleteCheckForPeriodAtStart(line, start)
@@ -106,7 +138,7 @@ fun! SCCompleteCheckForPeriodAtStart(line, start)
 endfun
 
 fun! SCCompleteCheckForParenthesisAtStart(line, start)
-  if a:line[a:start - 1] == "("
+  if a:line[col('.') - 2] == "("
     let s:theStringIsAfteraParenthesis = 1
   else
     let s:theStringIsAfteraParenthesis = 0
@@ -129,43 +161,42 @@ fun! SCCompleteCheckForClassMethod(line, start)
   endif
 endfun
 
-fun! SCCompleteCheckForMethodArgs(line, start)
-  let startOfWordThatStartedCompletion= copy(a:start-2)
-  let startOfWordBeforeTheOneThatStartedCompletion= copy(a:start-2)
-  while l:startOfWordBeforeTheOneThatStartedCompletion > 0 && a:line[l:startOfWordBeforeTheOneThatStartedCompletion- 1] =~ '\a'
-    let l:startOfWordBeforeTheOneThatStartedCompletion -= 1
-  endwhile
 
-  let s:wordBeforeTheParenthesisAtTheStartOfOurCall = a:line[(l:startOfWordBeforeTheOneThatStartedCompletion):(l:startOfWordThatStartedCompletion)]
-
-  if match(s:wordBeforeTheParenthesisAtTheStartOfOurCall,'\u') < 0
-    let s:theParenthesisIsAfteraClass = 0
-    let s:theParenthesisIsAfteraMethod = 1
-  else
-    let s:theParenthesisIsAfteraClass = 1
-    let s:theParenthesisIsAfteraMethod = 0
-  endif
-endfun
 
 fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
 
+  " echom "---------------------------------------------------------------"
+  " echom "general INFO" . " " . a:item['class'] . " " . a:item['kind']
+  " echom "---------------------------------------------------------------"
+  
   if s:theStringIsAfteraParenthesis
-    call add(a:list, {'word': "Here we should be displaying arguments!!", 'menu': a:item['class'] , 'kind': a:item['kind']})
+    if s:theStringIsAfteraPeriod
+      if s:thePeriodIsAfteraClass
+        if a:item['kind'] ==# "M" && (a:item['class'] ==# ('Meta_' . a:forClass)) && (s:wordBeforeParenthesis == a:item['name'])
+          call add(a:list, {'word': a:item['name'] .  a:item['methodArgs'], 'menu': a:item['class'], 'kind': a:item['kind']})
+        endif
+      elseif (s:theVariableWasSuccesfullyresolved == 1) && ( a:item['kind'] ==# "m" )  && ( a:item['class'] ==# a:forClass )
+        call add(a:list, {'word': a:item['name'] . a:item['methodArgs'], 'menu': a:item['class'], 'kind': a:item['kind']})
+      elseif ( s:theVariableWasSuccesfullyresolved == 0 ) && ( a:item['kind'] ==# "m" ) && (s:wordBeforeParenthesis == a:item['name'])
+        call add(a:list, {'word': a:item['name'] . a:item['methodArgs'], 'menu': a:item['class'], 'kind': a:item['kind']})
+      endif
+    endif
   endif
 
-  if s:theStringIsAfteraPeriod
-    " TODO For acting upon end of completion, see the |CompleteDone| autocommand event.
-    if s:thePeriodIsAfteraClass
-      if a:item['kind'] ==# "M" && (a:item['class'] ==# ('Meta_' . a:forClass))
+  if s:theStringIsAfteraParenthesis == 0
+    if s:theStringIsAfteraPeriod
+      if s:thePeriodIsAfteraClass
+        if a:item['kind'] ==# "M" && (a:item['class'] ==# ('Meta_' . a:forClass))
+          call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': a:item['kind']})
+        endif
+      elseif (s:theVariableWasSuccesfullyresolved == 1) && ( a:item['kind'] ==# "m" )  && ( a:item['class'] ==# a:forClass )
+        call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': a:item['kind']})
+      elseif ( s:theVariableWasSuccesfullyresolved == 0 ) && ( a:item['kind'] ==# "m" )
         call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': a:item['kind']})
       endif
-    elseif (s:theVariableWasSuccesfullyresolved == 1) && ( a:item['kind'] ==# "m" )  && ( a:item['class'] ==# a:forClass )
-      call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': a:item['kind']})
-    elseif ( s:theVariableWasSuccesfullyresolved == 0 ) && ( a:item['kind'] ==# "m" )
-      call add(a:list, {'word':a:item['name'], 'menu': a:item['class'] . " - " . a:item['methodArgs'], 'kind': a:item['kind']})
+    elseif ( a:item['kind'] ==# "c" ) "&& ( s:theStringIsAfteraPeriod == 0 )
+      call add(a:list, {'word':a:item['name'], 'kind': a:item['kind']})
     endif
-  elseif ( a:item['kind'] ==# "c" ) "&& ( s:theStringIsAfteraPeriod == 0 )
-    call add(a:list, {'word':a:item['name'], 'kind': a:item['kind']})
   endif
 endfun
 
@@ -178,4 +209,38 @@ endfun
 "   echom a:item['name'] . a:item['methodArgs']
 " endif
 " ======================
+"
+"
+"
+" EXPERIMENTS
 
+fun! SCCompleteCheckForMethodArgs(line, start)
+  " let placeAfterParenthesis = copy(a:start-1)
+  " let startOfWordBeforeParenthesis = copy(a:start-2)
+  " while l:startOfWordBeforeParenthesis > 0 && a:line[l:startOfWordBeforeParenthesis- 1] =~ '\a'
+  "   let l:startOfWordBeforeParenthesis -= 1
+  " endwhile
+
+  " let s:wordBeforeThePeriodBeforeTheWordBeforeTheParenthesis = a:line[(l:startOfWordBeforeParenthesis):(l:placeAfterParenthesis - 1)]
+
+  " " -------------------------
+  " " TRYING -------------------------
+  " let  l:startOfWordBeforeTheOneBeforeTheParenthesis = copy(l:startOfWordBeforeParenthesis)
+  " while l:startOfWordBeforeTheOneBeforeTheParenthesis > 0 && a:line[l:startOfWordBeforeParenthesis- 1] =~ '\a'
+  "   let l:startOfWordBeforeTheOneBeforeTheParenthesis -= 1
+  "   echom "--------------------------->     " . l:startOfWordBeforeTheOneBeforeTheParenthesis
+  " endwhile
+  " -------------------------
+
+  " if match(s:wordBeforeThePeriodBeforeTheWordBeforeTheParenthesis,'\u') < 0
+  "   let s:theParenthesisIsAfteraClass = 0
+  "   let s:theParenthesisIsAfteraMethod = 1
+  "   echom "It is a method!!  " . s:wordBeforeThePeriodBeforeTheWordBeforeTheParenthesis
+  "   let s:wordBeforeParenthesis =  a:line[(l:startOfWordBeforeParenthesis):(l:placeAfterParenthesis)]
+  " else
+  "   let s:theParenthesisIsAfteraClass = 1
+  "   let s:theParenthesisIsAfteraMethod = 0
+  "   echom "It is a class!!  " . s:wordBeforeThePeriodBeforeTheWordBeforeTheParenthesis
+  "   let s:wordBeforeParenthesis =  a:line[(l:startOfWordBeforeParenthesis):(l:placeAfterParenthesis)]
+  " endif
+endfun
