@@ -137,7 +137,7 @@ fun! SCCompleteFindStart(line, column)
   "TODO when finding the start with \a it stops in numbers and this methods
   "like fill2D will not get matched
   
-  while start > 0 && a:line[start - 1] =~ '\a'
+  while start > 0 && a:line[start - 1] =~ '\w'
     let start -= 1
   endwhile
 
