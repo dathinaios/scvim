@@ -63,10 +63,10 @@ fun! supercollidercomplete#Complete(findstart, base)
     let s:columnOfCompletionStart = col('.')
     for item in l:matches
       if CheckIfListContains(superClassList, item['class']) "if a class method
-        call SCCompleteIterateThroughSupeClasses(item, list_with_result_of_taglist, l:matches)
+        call SCCompleteIterateThroughSupeClasses(superClassList, list_with_result_of_taglist, l:matches)
         break " break out of the main search as we have started a new iteration
       elseif s:theVariableWasSuccesfullyresolved && CheckIfListContains(superClassList, item['class']) " TODO if the class precedes one of the superclasses the method is overwritten by the superclass for example GameLoop.n
-        call SCCompleteIterateThroughSupeClasses(item, list_with_result_of_taglist, l:matches)
+        call SCCompleteIterateThroughSupeClasses(superClassList, list_with_result_of_taglist, l:matches)
         break " break out of the main search as we have started a new iteration
       elseif s:theVariableWasSuccesfullyresolved == 0 && ( item['kind'] ==# "m")        
         call SCCompleteAddItemsToListAccordingToKind(item, list_with_result_of_taglist, item['class'])
@@ -90,11 +90,10 @@ fun! CheckIfListContains(list, string)
   return result
 endfun
 
-fun! SCCompleteIterateThroughSupeClasses(item, list, matches)
-  let superClassList = split(a:item['classTree'], ';')
-  for classFromSuperClassList in superClassList
+fun! SCCompleteIterateThroughSupeClasses(sclassList, listForResults, matches)
+  for classFromSuperClassList in a:sclassList
     for matchedItem in a:matches
-      call SCCompleteAddItemsToListAccordingToKind(matchedItem , a:list, classFromSuperClassList )
+      call SCCompleteAddItemsToListAccordingToKind(matchedItem , a:listForResults, classFromSuperClassList )
     endfor
   endfor
 endfun
