@@ -193,12 +193,17 @@ fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
     if s:theStringIsAfteraPeriod
       if s:thePeriodIsAfteraClass
         if a:item['kind'] ==# "M" && (a:item['class'] ==# ('Meta_' . a:forClass)) && (s:wordBeforeParenthesis == a:item['name'])
-          call add(a:list, {'word': a:item['name'] .  a:item['methodArgs'], 'menu': a:item['class'], 'kind': a:item['kind']})
+          let argString = substitute(a:item['methodArgs'], '[()]', '', 'g')
+          let argString = substitute(argString, '=', ':', 'g')
+          call add(a:list, {'word': a:item['name'] . '(' . argString , 'menu': a:item['class'], 'kind': a:item['kind']})
+          " let g:supecolliderCompleteCurrentMethodArguments = split(l:argString, ',')
+          " au! CompleteDone <buffer> call EnableAutocommandForMethodArgumentCompletion()
+          " call feedkeys(" ")
         endif
       elseif (s:theVariableWasSuccesfullyresolved == 1) && ( a:item['kind'] ==# "m" )  && ( a:item['class'] ==# a:forClass )
-        call add(a:list, {'word': a:item['name'] . a:item['methodArgs'], 'menu': a:item['class'], 'kind': a:item['kind']})
+        call add(a:list, {'word': a:item['name'] . '(' . argString , 'menu': a:item['class'], 'kind': a:item['kind']})
       elseif ( s:theVariableWasSuccesfullyresolved == 0 ) && ( a:item['kind'] ==# "m" ) && (s:wordBeforeParenthesis == a:item['name'])
-        call add(a:list, {'word': a:item['name'] . a:item['methodArgs'], 'menu': a:item['class'], 'kind': a:item['kind']})
+        call add(a:list, {'word': a:item['name'] . '(' . argString , 'menu': a:item['class'], 'kind': a:item['kind']})
       endif
     endif
   endif
@@ -218,6 +223,11 @@ fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
       call add(a:list, {'word':a:item['name'], 'kind': a:item['kind']})
     endif
   endif
+endfun
+
+fun! EnableAutocommandForMethodArgumentCompletion()
+  call complete(col('.'), g:supecolliderCompleteCurrentMethodArguments)
+  au! CompleteDone <buffer>
 endfun
 
 " debuging ============
