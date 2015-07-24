@@ -1,6 +1,8 @@
 SCVim (> 3.5)
 ==============
 
+(Work in Progress)
+
 A vim plugin for supercollider.
 
 This is based of the original scvim by Alex Norman (see:
@@ -12,7 +14,7 @@ Features
 * A faked REPL via the terminal
 * Code Navigation (jump to definitions) via a global tags file "~/.sctags"
 * Auto-Completion of known words via tag completion
-* Omnicompletion of classes and 'fairly aware' completion of methods
+* Omnicompletion of classes and methods
 * Launch the SuperCollider QT Help System
 
 
