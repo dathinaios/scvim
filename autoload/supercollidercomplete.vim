@@ -22,6 +22,13 @@
 "being typed yet. Would be useful to have all the methods to choose from
 "and type front and back to see if something exists.
 
+"TODO
+"error when a variable is assigned to another variable and then I try to call
+"a method on it
+
+"TODO
+"error when calling after parenthesis on a class or unkown word or method
+
 " SuperCollider kinds
 " c  classes
 " m  instance methods
@@ -201,8 +208,12 @@ fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
           " call feedkeys(" ")
         endif
       elseif (s:theVariableWasSuccesfullyresolved == 1) && ( a:item['kind'] ==# "m" )  && ( a:item['class'] ==# a:forClass )
+        let argString = substitute(a:item['methodArgs'], '[()]', '', 'g')
+        let argString = substitute(argString, '=', ':', 'g')
         call add(a:list, {'word': a:item['name'] . '(' . argString , 'menu': a:item['class'], 'kind': a:item['kind']})
       elseif ( s:theVariableWasSuccesfullyresolved == 0 ) && ( a:item['kind'] ==# "m" ) && (s:wordBeforeParenthesis == a:item['name'])
+        let argString = substitute(a:item['methodArgs'], '[()]', '', 'g')
+        let argString = substitute(argString, '=', ':', 'g')
         call add(a:list, {'word': a:item['name'] . '(' . argString , 'menu': a:item['class'], 'kind': a:item['kind']})
       endif
     endif
