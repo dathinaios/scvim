@@ -22,13 +22,6 @@
 "being typed yet. Would be useful to have all the methods to choose from
 "and type front and back to see if something exists.
 
-"TODO
-"error when a variable is assigned to another variable and then I try to call
-"a method on it
-
-"TODO
-"error when calling after parenthesis on a class or unkown word or method
-
 " SuperCollider kinds
 " c  classes
 " m  instance methods
@@ -43,11 +36,21 @@ fun! supercollidercomplete#Complete(findstart, base)
 
     "get superclasses in a list as it is useful information for later filtering
     if s:theVariableWasSuccesfullyresolved
-      let superClassesString = taglist("^" . s:classFoundAfterVariableResolution . "$")[0]['classTree']
-      let superClassList = split(superClassesString, ';')
+      let l:taglistForSuperClasses = taglist("^" . s:classFoundAfterVariableResolution . "$")
+      if len(l:taglistForSuperClasses) != 0
+        let superClassesString = l:taglistForSuperClasses[0]['classTree']
+        let superClassList = split(superClassesString, ';')
+      else
+        let l:superClassList = []
+      endif
     elseif s:wordBeforeThePeriodAtTheStartOfOurCall != ""
-      let superClassesString = taglist("^" . s:wordBeforeThePeriodAtTheStartOfOurCall . "$")[0]['classTree']
-      let superClassList = split(superClassesString, ';')
+      let l:taglistForSuperClasses = taglist("^" . s:wordBeforeThePeriodAtTheStartOfOurCall . "$")
+      if len(l:taglistForSuperClasses) != 0
+        let superClassesString = l:taglistForSuperClasses[0]['classTree']
+        let superClassList = split(superClassesString, ';')
+      else
+        let l:superClassList = []
+      endif
     endif
 
     if s:theStringIsAfteraParenthesis
@@ -86,14 +89,18 @@ fun! supercollidercomplete#Complete(findstart, base)
 endfun
 
 fun! CheckIfListContains(list, string)
-  for item in a:list
-    if item == a:string
-      let result = 1
-      break
-    else
-      let result = 0
-    endif
-  endfor
+  if len(a:list) != 0
+    for item in a:list
+      if item == a:string
+        let result = 1
+        break
+      else
+        let result = 0
+      endif
+    endfor
+  else
+    let result = 0
+  endif
   return result
 endfun
 
