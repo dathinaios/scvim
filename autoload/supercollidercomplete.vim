@@ -34,6 +34,15 @@ fun! supercollidercomplete#Complete(findstart, base)
   else
     let list_with_result_of_taglist = []
 
+    "get superclasses in a list as it is useful information for later filtering
+    if s:theVariableWasSuccesfullyresolved
+      let superClassesString = taglist("^" . s:classFoundAfterVariableResolution . "$")[0]['classTree']
+      let superClassList = split(superClassesString, ';')
+    elseif s:wordBeforeThePeriodAtTheStartOfOurCall != ""
+      let superClassesString = taglist("^" . s:wordBeforeThePeriodAtTheStartOfOurCall . "$")[0]['classTree']
+      let superClassList = split(superClassesString, ';')
+    endif
+
     if s:theStringIsAfteraParenthesis
       let baseString = substitute(a:base, '(', '', 'g')
       let matches = taglist("^" . l:baseString)
@@ -53,10 +62,10 @@ fun! supercollidercomplete#Complete(findstart, base)
 
     let s:columnOfCompletionStart = col('.')
     for item in l:matches
-      if item['class'] ==# s:wordBeforeThePeriodAtTheStartOfOurCall "if a class method
+      if CheckIfListContains(superClassList, item['class']) "if a class method
         call SCCompleteIterateThroughSupeClasses(item, list_with_result_of_taglist, l:matches)
         break " break out of the main search as we have started a new iteration
-      elseif s:theVariableWasSuccesfullyresolved && (s:classFoundAfterVariableResolution ==# item['class'])
+      elseif s:theVariableWasSuccesfullyresolved && CheckIfListContains(superClassList, item['class']) " TODO if the class precedes one of the superclasses the method is overwritten by the superclass for example GameLoop.n
         call SCCompleteIterateThroughSupeClasses(item, list_with_result_of_taglist, l:matches)
         break " break out of the main search as we have started a new iteration
       elseif s:theVariableWasSuccesfullyresolved == 0 && ( item['kind'] ==# "m")        
