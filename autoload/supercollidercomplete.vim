@@ -16,12 +16,6 @@
 "                                                This file is part of SCVIM "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-
-"TODO
-"Have a good default result for when completion is called without anything
-"being typed yet. Would be useful to have all the methods to choose from
-"and type front and back to see if something exists.
-
 " SuperCollider kinds
 " c  classes
 " m  instance methods
@@ -59,17 +53,13 @@ fun! supercollidercomplete#Complete(findstart, base)
       let s:wordBeforeParenthesis = l:baseString
     else
       let baseString = a:base
+      if baseString == ""
+        " make sure we dont find a match without given letter
+        let baseString = "€"
+      endif
       let matches = taglist("^" . l:baseString)
     endif
     
-    " echom "---------------------------------------------------------------"
-    " for it in matches
-    "   if it['class'] == "ArrayedCollection"
-    "     echom it['name'] . "   :    "  . it['class']
-    "   endif
-    " endfor
-    " echom "---------------------------------------------------------------"
-
     let s:columnOfCompletionStart = col('.')
     for item in l:matches
       if CheckIfListContains(superClassList, item['class']) "if a class method
@@ -147,15 +137,11 @@ fun! SCCompleteFindStart(line, column)
   else
     let start = a:column - 1
   endif
-
-  "TODO when finding the start with \a it stops in numbers and this methods
-  "like fill2D will not get matched
   
   while start > 0 && a:line[start - 1] =~ '\w'
     let start -= 1
   endwhile
 
-  call SCCompleteCheckForMethodArgs(a:line, start)
   call SCCompleteCheckForParenthesisAtStart(a:line, start)
   call SCCompleteCheckForPeriodAtStart(a:line, start)
   call SCCompleteCheckForClassMethod(a:line, start)
@@ -262,7 +248,7 @@ endfun
 "
 " EXPERIMENTS
 
-fun! SCCompleteCheckForMethodArgs(line, start)
+" fun! SCCompleteCheckForMethodArgs(line, start)
   " let placeAfterParenthesis = copy(a:start-1)
   " let startOfWordBeforeParenthesis = copy(a:start-2)
   " while l:startOfWordBeforeParenthesis > 0 && a:line[l:startOfWordBeforeParenthesis- 1] =~ '\a'
@@ -291,4 +277,4 @@ fun! SCCompleteCheckForMethodArgs(line, start)
   "   echom "It is a class!!  " . s:wordBeforeThePeriodBeforeTheWordBeforeTheParenthesis
   "   let s:wordBeforeParenthesis =  a:line[(l:startOfWordBeforeParenthesis):(l:placeAfterParenthesis)]
   " endif
-endfun
+" endfun
