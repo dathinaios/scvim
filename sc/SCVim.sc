@@ -141,6 +141,8 @@ SCVim {
             string = string.replace("\n", "'n'").replace("\t", "'t'").replace("\r", "'r'");
             string = string.insert(0, "(");
             string = string.insert(string.size, ")");
+            string = string.replace("=", ":");
+            string = string.replace(" :", ":");
             arguments = string;
           }
         );
@@ -179,6 +181,8 @@ SCVim {
             string = string.replace("\n", "'n'").replace("\t", "'t'").replace("\r", "'r'");
             string = string.insert(0, "(");
             string = string.insert(string.size, ")");
+            string = string.replace("=", ":");
+            string = string.replace(" :", ":");
             arguments = string;
           }
         );
@@ -208,10 +212,11 @@ SCVim {
 
 /* TESTING
 testing = Array.new;
-another = String.
+another = String.a
 testing = another
+Meta_Interpreter(
 
 another.realNextName
 ekdj.fastResetCamera
-Array.fill2D
+Array.geom
 */

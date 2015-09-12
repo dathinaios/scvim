@@ -12,9 +12,16 @@
 "                                          |_|                              "
 "                                                                           "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"                                         Copyright 2015 Dionysis Athinaios "
+"                                                   2015 Dionysis Athinaios "
 "                                                This file is part of SCVIM "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" TODO allow for more clever completion of method arguments
+" TODO The arguments are appearing like freq : 440.00000 This is not working
+" properly because the  : needs to be exactly next to the argument. Do all
+" this at the side of supercollider tag generation.
+" TODO when creating the tags in SCVim.sc I add parenthesis only to remove
+" them on this script!
 
 " SuperCollider kinds
 " c  classes
@@ -65,7 +72,7 @@ fun! supercollidercomplete#Complete(findstart, base)
       if CheckIfListContains(superClassList, item['class']) "if a class method
         call SCCompleteIterateThroughSupeClasses(superClassList, list_with_result_of_taglist, l:matches)
         break " break out of the main search as we have started a new iteration
-      elseif s:theVariableWasSuccesfullyresolved && CheckIfListContains(superClassList, item['class']) " TODO if the class precedes one of the superclasses the method is overwritten by the superclass for example GameLoop.n
+      elseif s:theVariableWasSuccesfullyresolved && CheckIfListContains(superClassList, item['class'])
         call SCCompleteIterateThroughSupeClasses(superClassList, list_with_result_of_taglist, l:matches)
         break " break out of the main search as we have started a new iteration
       elseif s:theVariableWasSuccesfullyresolved == 0 && ( item['kind'] ==# "m")        
@@ -194,7 +201,7 @@ fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
       if s:thePeriodIsAfteraClass
         if a:item['kind'] ==# "M" && (a:item['class'] ==# ('Meta_' . a:forClass)) && (s:wordBeforeParenthesis == a:item['name'])
           let argString = substitute(a:item['methodArgs'], '[()]', '', 'g')
-          let argString = substitute(argString, '=', ':', 'g')
+          " let argString = substitute(argString, '=', ':', 'g')
           call add(a:list, {'word': a:item['name'] . '(' . argString , 'menu': a:item['class'], 'kind': a:item['kind']})
           " let g:supecolliderCompleteCurrentMethodArguments = split(l:argString, ',')
           " au! CompleteDone <buffer> call EnableAutocommandForMethodArgumentCompletion()
@@ -202,11 +209,11 @@ fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
         endif
       elseif (s:theVariableWasSuccesfullyresolved == 1) && ( a:item['kind'] ==# "m" )  && ( a:item['class'] ==# a:forClass )
         let argString = substitute(a:item['methodArgs'], '[()]', '', 'g')
-        let argString = substitute(argString, '=', ':', 'g')
+        " let argString = substitute(argString, '=', ':', 'g')
         call add(a:list, {'word': a:item['name'] . '(' . argString , 'menu': a:item['class'], 'kind': a:item['kind']})
       elseif ( s:theVariableWasSuccesfullyresolved == 0 ) && ( a:item['kind'] ==# "m" ) && (s:wordBeforeParenthesis == a:item['name'])
         let argString = substitute(a:item['methodArgs'], '[()]', '', 'g')
-        let argString = substitute(argString, '=', ':', 'g')
+        " let argString = substitute(argString, '=', ':', 'g')
         call add(a:list, {'word': a:item['name'] . '(' . argString , 'menu': a:item['class'], 'kind': a:item['kind']})
       endif
     endif
