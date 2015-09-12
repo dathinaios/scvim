@@ -17,9 +17,6 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " TODO allow for more clever completion of method arguments
-" TODO The arguments are appearing like freq : 440.00000 This is not working
-" properly because the  : needs to be exactly next to the argument. Do all
-" this at the side of supercollider tag generation.
 " TODO when creating the tags in SCVim.sc I add parenthesis only to remove
 " them on this script!
 
@@ -200,7 +197,8 @@ fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
     if s:theStringIsAfteraPeriod
       if s:thePeriodIsAfteraClass
         if a:item['kind'] ==# "M" && (a:item['class'] ==# ('Meta_' . a:forClass)) && (s:wordBeforeParenthesis == a:item['name'])
-          let argString = substitute(a:item['methodArgs'], '[()]', '', 'g')
+          " let argString = substitute(a:item['methodArgs'], '[()]', '', 'g')
+          let argString = a:item['methodArgs']
           " let argString = substitute(argString, '=', ':', 'g')
           call add(a:list, {'word': a:item['name'] . '(' . argString , 'menu': a:item['class'], 'kind': a:item['kind']})
           " let g:supecolliderCompleteCurrentMethodArguments = split(l:argString, ',')
@@ -208,11 +206,11 @@ fun! SCCompleteAddItemsToListAccordingToKind(item, list, forClass)
           " call feedkeys(" ")
         endif
       elseif (s:theVariableWasSuccesfullyresolved == 1) && ( a:item['kind'] ==# "m" )  && ( a:item['class'] ==# a:forClass )
-        let argString = substitute(a:item['methodArgs'], '[()]', '', 'g')
+          let argString = a:item['methodArgs']
         " let argString = substitute(argString, '=', ':', 'g')
         call add(a:list, {'word': a:item['name'] . '(' . argString , 'menu': a:item['class'], 'kind': a:item['kind']})
       elseif ( s:theVariableWasSuccesfullyresolved == 0 ) && ( a:item['kind'] ==# "m" ) && (s:wordBeforeParenthesis == a:item['name'])
-        let argString = substitute(a:item['methodArgs'], '[()]', '', 'g')
+          let argString = a:item['methodArgs']
         " let argString = substitute(argString, '=', ':', 'g')
         call add(a:list, {'word': a:item['name'] . '(' . argString , 'menu': a:item['class'], 'kind': a:item['kind']})
       endif

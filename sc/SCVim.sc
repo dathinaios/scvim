@@ -139,8 +139,8 @@ SCVim {
             string = string.trim;
             //need to escape all the symbols that have a special meaning in ctags
             string = string.replace("\n", "'n'").replace("\t", "'t'").replace("\r", "'r'");
-            string = string.insert(0, "(");
-            string = string.insert(string.size, ")");
+            /* string = string.insert(0, "("); */
+            /* string = string.insert(string.size, ")"); */
             string = string.replace("=", ":");
             string = string.replace(" :", ":");
             arguments = string;
@@ -179,8 +179,8 @@ SCVim {
             string = string.trim;
             //need to escape all the symbols that have a special meaning in ctags
             string = string.replace("\n", "'n'").replace("\t", "'t'").replace("\r", "'r'");
-            string = string.insert(0, "(");
-            string = string.insert(string.size, ")");
+            /* string = string.insert(0, "("); */
+            /* string = string.insert(string.size, ")"); */
             string = string.replace("=", ":");
             string = string.replace(" :", ":");
             arguments = string;
